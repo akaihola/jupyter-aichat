@@ -8,6 +8,13 @@
 
 ::
 
+    Collecting jupyter_aichat
+      Downloading jupyter_aichat-0.0.1-py2.py3-none-any.whl (3.9 kB)
+    Installing collected packages: jupyter_aichat
+    Successfully installed jupyter_aichat-0.0.1
+
+::
+
     %load_ext jupyter_aichat
 
 ::
