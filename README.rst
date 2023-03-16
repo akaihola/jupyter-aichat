@@ -22,9 +22,9 @@
 
 ::
 
-    %%say
+    %%ai
     I've created an AI chat user interface for Jupyter notebooks.
-    It adds the `%say` and `%%say` magic commands for writing messages,
+    It adds the `%ai` and `%%ai` magic commands for writing messages,
     renders response messages in the notebook,
     and keeps the whole conversation in memory.
 
@@ -33,8 +33,8 @@ of AI it uses?
 
 ::
 
-    %%say
-    The user just types `%say "<message>"` or `%%say` followed by a multi-line message.
+    %%ai
+    The user just types `%ai "<message>"` or `%%ai` followed by a multi-line message.
     It asks for the ChatGPT API key before sending the first message.
     Both sent messages and received messages are kept in memory
     and the whole message history is submitted every time the magic command is used.
@@ -45,7 +45,7 @@ responses?
 
 ::
 
-    %say "I think you know that best yourself :)"
+    %ai "I think you know that best yourself :)"
 
 As an AI language model, I don't know everything about what specific tools or
 algorithms you've used in the creation of your AI chat user interface. However,
@@ -58,7 +58,7 @@ generate an appropriate response based on the context of the conversation.
 
 ::
 
-    %%say
+    %%ai
     Thanks for the summary!
     I'm publishing this on GitHub and putting this very discussion as the README.
 

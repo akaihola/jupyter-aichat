@@ -20,7 +20,7 @@ class Conversation:
     def __init__(self) -> None:
         self.messages: list[Message] = []
 
-    def say(self, text: str) -> None:
+    def say_and_listen(self, text: str) -> None:
         _authenticate()
         self.messages.append({"role": "user", "content": text})
         completion = openai.ChatCompletion.create(
@@ -39,5 +39,5 @@ class ConversationMagic(Magics):
         self.conversation = Conversation()
 
     @line_cell_magic
-    def say(self, line: str, cell: Optional[str] = None):
-        self.conversation.say(cell or line)
+    def ai(self, line: str, cell: Optional[str] = None):
+        self.conversation.say_and_listen(cell or line)
