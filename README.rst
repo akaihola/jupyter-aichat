@@ -2,6 +2,9 @@
  jupyter-aichat
 ================
 
+.. image:: https://mybinder.org/badge_logo.svg
+ :target: https://mybinder.org/v2/gh/akaihola/jupyter-aichat/main?labpath=example.ipynb
+
 ::
 
     !pip install jupyter-aichat
