@@ -1,10 +1,13 @@
 from getpass import getpass
+from itertools import takewhile
 from textwrap import dedent
-from typing import Optional, TypedDict
+from typing import Optional, TypedDict, Union, Any
 
 import openai
 from IPython.core.magic import Magics, line_cell_magic, magics_class
-from IPython.display import display_markdown
+from IPython.core.display import display_markdown
+from jupyter_aichat.api_types import Message
+from jupyter_aichat.tokens import num_tokens_from_messages
 
 
 def output(markdown_text: str) -> None:
@@ -29,17 +32,35 @@ def _authenticate() -> None:
         openai.api_key = getpass("Enter your OpenAI API key:")
 
 
-class Message(TypedDict):
-    role: str
-    content: str
+class PromptUsage(TypedDict):
+    total_tokens: int
 
 
-class Request(TypedDict):
-    choices: list[Message]
+class CompletionUsage(TypedDict):
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
 
 
-class Response(Request):
-    pass
+class Choice(TypedDict):
+    message: Message
+
+
+class Transmission(TypedDict):
+    choices: list[Choice]
+
+
+class Request(Transmission):
+    usage: PromptUsage
+
+
+class ApiCompletionUsage:
+    prompt_tokens: int
+    completion_tokens: int
+
+
+class Response(Transmission):
+    usage: CompletionUsage
 
 
 HELP = dedent(
@@ -85,45 +106,135 @@ HELP = dedent(
 )
 
 
+def is_system_message(message: Message) -> bool:
+    return message["role"] == "system"
+
+
+def is_system_prompt(prompt: Union[Request, Response]) -> bool:
+    return is_system_message(prompt["choices"][0]["message"])
+
+
 class Conversation:
+    MAX_TOKENS = 4096
+    MODEL = "gpt-3.5-turbo"
+
     def __init__(self) -> None:
-        self.messages: list[Message] = []
-        self.requests_responses: list[Request] = []
+        self.transmissions: list[Union[Request, Response]] = []
 
     def say_and_listen(self, text: str) -> None:
         _authenticate()
         request_message: Message = {"role": "user", "content": text}
-        self.requests_responses.append({"choices": [request_message]})
-        self.messages.append(request_message)
+        prompt_tokens = num_tokens_from_messages([request_message])
+        prompt: Request = {
+            "choices": [{"message": request_message}],
+            "usage": {
+                "total_tokens": self.total_tokens + prompt_tokens,
+            },
+        }
+        self.transmissions.append(prompt)
         # https://platform.openai.com/docs/api-reference/chat/create
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=self.messages,
+            model=self.MODEL,
+            messages=self.get_messages(max_tokens=self.MAX_TOKENS),
         )
-        self.requests_responses.append(response.to_dict_recursive())
-        response_message = response.choices[0].message
-        self.messages.append(response_message.to_dict())
-        output(response_message.content.strip())
+        prompt["usage"]["total_tokens"] = response.usage.prompt_tokens
+        self.transmissions.append(response.to_dict_recursive())
+        response_message = response["choices"][0]["message"]
+        output(response_message["content"].strip())
+
+    def get_transmissions(self, max_tokens: int) -> list[Union[Request, Response]]:
+        """Return the transmissions that fit within the token budget.
+
+        :param max_tokens: The maximum number of tokens to use.
+        :return: The transmissions that fit within the token budget.
+
+        """
+        if self.total_tokens <= max_tokens:
+            return self.transmissions
+        num_transmissions = len(self.transmissions)
+        num_system_messages, system_message_tokens = self._get_initial_system_messages()
+        for index in range(num_system_messages, num_transmissions):
+            tail_tokens = self.get_tokens_for_slice(index, num_transmissions)
+            if system_message_tokens + tail_tokens <= max_tokens:
+                break
+        else:
+            index = num_transmissions - 1
+            last_message_tokens = self.get_tokens_for_slice(index, num_transmissions)
+            if last_message_tokens > max_tokens:
+                raise RuntimeError(
+                    f"The last message has {last_message_tokens} tokens,"
+                    f" more than the maximum of {max_tokens}."
+                )
+            num_system_messages = 0
+        return self.transmissions[:num_system_messages] + self.transmissions[index:]
+
+    def _get_initial_system_messages(self) -> tuple[int, int]:
+        """Return the number of initial system messages and their total tokens.
+
+        :return: The number of initial system messages and their total tokens.
+
+        """
+        system_prompts = list(takewhile(is_system_prompt, self.transmissions))
+        if not system_prompts:
+            return 0, 0
+        last_system_prompt = system_prompts[-1]
+        return len(system_prompts), last_system_prompt["usage"]["total_tokens"]
+
+    def get_tokens_for_slice(self, start: int, stop: int) -> int:
+        """Return the total number of tokens in the slice.
+
+        :param start: The start index of the slice.
+        :param stop: The stop index of the slice.
+        :return: The total number of tokens in the slice.
+
+        """
+        if not self.transmissions:
+            return 0
+        if start == 0:
+            return self.transmissions[stop - 1]["usage"]["total_tokens"]
+        return (
+            self.transmissions[stop - 1]["usage"]["total_tokens"]
+            - self.transmissions[start - 1]["usage"]["total_tokens"]
+        )
+
+    def get_messages(self, max_tokens: int = 2**63 - 1) -> list[Message]:
+        """Return the messages that fit within the token budget.
+
+        :param max_tokens: The maximum number of tokens to use.
+        :return: The messages that fit within the token budget.
+
+        """
+        return [
+            transmission["choices"][0]["message"]
+            for transmission in self.get_transmissions(max_tokens)
+        ]
+
+    @property
+    def total_tokens(self) -> int:
+        if not self.transmissions:
+            return 0
+        return self.transmissions[-1]["usage"]["total_tokens"]
 
 
 @magics_class
 class ConversationMagic(Magics):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:  # type: ignore[misc]
         super().__init__(*args, **kwargs)
         self.conversation = Conversation()
 
-    @line_cell_magic
-    def ai(self, line: str, cell: Optional[str] = None) -> None:
+    @line_cell_magic  # type: ignore[misc]
+    def ai(self, line: str, cell: Optional[str] = None) -> Optional[Conversation]:
         text = cell if cell is not None else line
         if not text.strip():
             output(HELP)
-            return
+            return None
         maybe_command, *params = text.split(None, 1)
         if maybe_command.startswith("/"):
             return self.handle_command(maybe_command, *params)
         self.conversation.say_and_listen(text)
+        return None
 
-    def handle_command(self, command: str, params: str = "") -> None:
+    def handle_command(self, command: str, params: str = "") -> Optional[Conversation]:
         if command == "/restart":
             self.conversation = Conversation()
         elif command == "/get_object":
@@ -132,8 +243,9 @@ class ConversationMagic(Magics):
             output(
                 "\n\n".join(
                     f"**{message['role']}:** {message['content'].strip()}"
-                    for message in self.conversation.messages
+                    for message in self.conversation.get_messages()
                 )
             )
         else:
             output(f"Unknown command `{command}`. Try `%ai` for help.")
+        return None

@@ -7,7 +7,7 @@ name = "jupyter_aichat"
 authors = [{name = "Antti Kaihola", email = "13725+akaihola@users.noreply.github.com"}]
 readme = "README.rst"
 dynamic = ["version", "description"]
-dependencies = ["IPython", "openai"]
+dependencies = ["IPython", "openai", "tiktoken"]
 
 [project.urls]
 Home = "https://github.com/akaihola/jupyter_aichat"
