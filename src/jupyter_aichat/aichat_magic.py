@@ -6,8 +6,21 @@ from IPython.core.magic import Magics, line_cell_magic, magics_class
 from IPython.display import Markdown, display
 
 
+HELP_ACCOUNT_AND_KEY = (
+    "You need an [OpenAI account](https://platform.openai.com/) and an "
+    "[API key](https://platform.openai.com/account/api-keys). Consider revoking the "
+    "key after using it on a public server. "
+)
+
+HELP_PRICING = "Also be aware of the [pricing](https://openai.com/pricing)."
+
+
 def _authenticate() -> None:
     if not openai.api_key:
+        output(
+            f"{HELP_ACCOUNT_AND_KEY} The key will be prompted when starting the chat. "
+            f"{HELP_PRICING}"
+        )
         openai.api_key = getpass("Enter your OpenAI API key:")
 
 
