@@ -254,10 +254,17 @@ class ConversationMagic(Magics):
         elif command == "/get_object":
             return self.conversation
         elif command == "/history":
+            args = (
+                [self.conversation.MAX_TOKENS]
+                if params == "limit"
+                else [int(params)]
+                if params
+                else []
+            )
             output(
                 "\n\n".join(
                     f"**{message['role']}:** {message['content'].strip()}"
-                    for message in self.conversation.get_messages()
+                    for message in self.conversation.get_messages(*args)
                 )
             )
         else:
