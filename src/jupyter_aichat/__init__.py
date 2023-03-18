@@ -2,9 +2,12 @@
 
 __version__ = "0.0.1"
 
-from .aichat_magic import ConversationMagic, output, TemplateLoader
+from IPython.core.interactiveshell import InteractiveShell
+
+from .aichat_magic import ConversationMagic
+from .output import output, TemplateLoader
 
 
-def load_ipython_extension(ipython):
-    ipython.register_magics(ConversationMagic)
+def load_ipython_extension(ipython: InteractiveShell) -> None:
+    ipython.register_magics(ConversationMagic)  # type: ignore[no-untyped-call]
     output(TemplateLoader()["load_ipython_extension"])
