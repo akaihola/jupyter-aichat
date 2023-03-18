@@ -215,6 +215,18 @@ class Conversation:
             return 0
         return self.transmissions[-1]["usage"]["total_tokens"]
 
+    def add_system_message(self, content: str) -> None:
+        """Add a system message to the conversation.
+
+        :param content: The content of the system message.
+
+        """
+        message: Message = {"role": "system", "content": content}
+        total_tokens = self.total_tokens + num_tokens_from_messages([message])
+        usage: PromptUsage = {"total_tokens": total_tokens}
+        request: Request = {"choices": [{"message": message}], "usage": usage}
+        self.transmissions.append(request)
+
 
 @magics_class
 class ConversationMagic(Magics):
@@ -237,6 +249,8 @@ class ConversationMagic(Magics):
     def handle_command(self, command: str, params: str = "") -> Optional[Conversation]:
         if command == "/restart":
             self.conversation = Conversation()
+        elif command == "/system":
+            self.conversation.add_system_message(params)
         elif command == "/get_object":
             return self.conversation
         elif command == "/history":
