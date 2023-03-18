@@ -4,6 +4,7 @@ from textwrap import dedent
 from typing import Optional, TypedDict, Union, Any
 
 import openai
+import pkg_resources
 from IPython.core.magic import Magics, line_cell_magic, magics_class
 from IPython.core.display import display_markdown
 from jupyter_aichat.api_types import Message
@@ -215,16 +216,23 @@ class Conversation:
             return 0
         return self.transmissions[-1]["usage"]["total_tokens"]
 
-    def add_system_message(self, content: str) -> None:
+    def add_system_message(self, content: str, skip_if_exists: bool = False) -> None:
         """Add a system message to the conversation.
 
         :param content: The content of the system message.
+        :param skip_if_exists: Whether to skip adding the message if it already exists.
 
         """
         message: Message = {"role": "system", "content": content}
         total_tokens = self.total_tokens + num_tokens_from_messages([message])
         usage: PromptUsage = {"total_tokens": total_tokens}
         request: Request = {"choices": [{"message": message}], "usage": usage}
+        if skip_if_exists and any(
+            is_system_prompt(prompt)
+            and prompt["choices"][0]["message"]["content"] == content
+            for prompt in self.transmissions
+        ):
+            return
         self.transmissions.append(request)
 
 
@@ -239,6 +247,12 @@ class ConversationMagic(Magics):
         text = line if cell is None else f"{line} {cell}"
         if not text.strip():
             output(HELP)
+            self.conversation.add_system_message(
+                pkg_resources.resource_string(
+                    __name__, "data/help_assistant_system_message.txt"
+                ).decode(),
+                skip_if_exists=True,
+            )
             return None
         maybe_command, *params = text.split(None, 1)
         if maybe_command.startswith("/"):
