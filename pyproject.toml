@@ -9,8 +9,6 @@ readme = "README.rst"
 dynamic = ["version", "description"]
 dependencies = ["IPython", "openai", "tiktoken"]
 
-[tool.flit.external-data]
-directory = "data"
 
 [project.urls]
 Home = "https://github.com/akaihola/jupyter_aichat"
