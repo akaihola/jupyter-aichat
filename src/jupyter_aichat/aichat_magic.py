@@ -1,5 +1,6 @@
 from getpass import getpass
 from itertools import takewhile
+from string import Formatter
 from textwrap import dedent
 from typing import Optional, TypedDict, Union, Any
 
@@ -15,21 +16,9 @@ def output(markdown_text: str) -> None:
     display_markdown(markdown_text, raw=True)
 
 
-HELP_ACCOUNT_AND_KEY = (
-    "You need an [OpenAI account](https://platform.openai.com/) and an "
-    "[API key](https://platform.openai.com/account/api-keys). Consider revoking the "
-    "key after using it on a public server. "
-)
-
-HELP_PRICING = "Also be aware of the [pricing](https://openai.com/pricing)."
-
-
 def _authenticate() -> None:
     if not openai.api_key:
-        output(
-            f"{HELP_ACCOUNT_AND_KEY} The key will be prompted when starting the chat. "
-            f"{HELP_PRICING}"
-        )
+        output(TemplateLoader()["authentication_note"])
         openai.api_key = getpass("Enter your OpenAI API key:")
 
 
@@ -66,42 +55,6 @@ class Response(Transmission):
 
 HELP = dedent(
     rf"""
-    # 🗨 · · · **jupyter-aichat** · · · 🗨
-    ## Talking to the chatbot
-    Click on a cell and type either
-    >```python
-    >[1]: %ai "your message"
-    >```
-
-    or
-
-    >```python
-    >[2]: %%ai
-    >      your message
-    >      which may contain multiple lines
-    >```
-
-    and type `Shift-Enter`.
-
-    ## Prerequisites
-    {HELP_ACCOUNT_AND_KEY} {HELP_PRICING}
-
-    ## Additional commands
-    - `%ai` – show these usage instructions
-    - `%ai /restart` – forget the conversation and start a new one
-    - `%ai /history` – display the complete conversation so far
-    - `conv = %ai /get_object` – assign the `Conversation` object to a variable
-
-    In the `Conversation` class you can access the conversation history:
-    >```python
-    >[3]: conv.messages
-    >
-    >      [{{'role': 'user', 'content': 'Hello!'}},
-    >       {{'role': 'assistant',
-    >        'content': '\n\nHello there! How may I assist you today?'}}]
-    >```
-
-    You can also access the complete responses in `conv.requests_responses`.
 
     """
 )
@@ -236,21 +189,35 @@ class Conversation:
         self.transmissions.append(request)
 
 
+class TemplateLoader:
+    def __contains__(self, name: str) -> bool:
+        return pkg_resources.resource_exists(__name__, f"data/{name}.md")
+
+    def __getitem__(self, name: str) -> str:
+        """Load and return rendered contents of the data template with the given name.
+
+        :param name: The name of the data template.
+        :return: The rendered contents of the data template with the given name.
+
+        """
+        template = pkg_resources.resource_string(__name__, f"data/{name}.md").decode()
+        return Formatter().vformat(template, (), self)
+
+
 @magics_class
 class ConversationMagic(Magics):
     def __init__(self, *args: Any, **kwargs: Any) -> None:  # type: ignore[misc]
         super().__init__(*args, **kwargs)
         self.conversation = Conversation()
+        self.templates = TemplateLoader()
 
     @line_cell_magic  # type: ignore[misc]
     def ai(self, line: str, cell: Optional[str] = None) -> Optional[Conversation]:
         text = line if cell is None else f"{line} {cell}"
         if not text.strip():
-            output(HELP)
+            output(self.templates["help"])
             self.conversation.add_system_message(
-                pkg_resources.resource_string(
-                    __name__, "data/help_assistant_system_message.txt"
-                ).decode(),
+                self.templates["help_assistant_system_message"],
                 skip_if_exists=True,
             )
             return None
@@ -281,6 +248,8 @@ class ConversationMagic(Magics):
                     for message in self.conversation.get_messages(*args)
                 )
             )
+        elif command.startswith("/") and command[1:] in self.templates:
+            output(self.templates[command[1:]])
         else:
             output(f"Unknown command `{command}`. Try `%ai` for help.")
         return None
