@@ -236,7 +236,7 @@ class ConversationMagic(Magics):
 
     @line_cell_magic  # type: ignore[misc]
     def ai(self, line: str, cell: Optional[str] = None) -> Optional[Conversation]:
-        text = cell if cell is not None else line
+        text = line if cell is None else f"{line} {cell}"
         if not text.strip():
             output(HELP)
             return None
