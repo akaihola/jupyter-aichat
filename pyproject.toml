@@ -9,9 +9,11 @@ readme = "README.rst"
 dynamic = ["version", "description"]
 dependencies = ["IPython", "openai", "setuptools", "tiktoken"]
 
-[project.requires-extra]
+[project.optional-dependencies]
 test = [
-    "types-setuptools"
+    "pytest",
+    "pytest-kwparametrize",
+    "types-setuptools",
 ]
 
 [project.urls]
