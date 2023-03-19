@@ -2,6 +2,7 @@ from typing import Optional, Any
 
 from IPython.core.magic import Magics, line_cell_magic, magics_class
 
+from jupyter_aichat.authentication import save_api_key
 from jupyter_aichat.client import Conversation
 from jupyter_aichat.output import output, TemplateLoader
 from jupyter_aichat.schedule import parse_schedule, Schedule
@@ -36,6 +37,8 @@ class ConversationMagic(Magics):
     def handle_command(self, command: str, params: str = "") -> Optional[Conversation]:
         if command == "/restart":
             self.conversation = Conversation()
+        elif command == "/save-key":
+            save_api_key()
         elif command == "/system":
             schedule, system_message = (
                 parse_schedule(params, self.conversation.current_step)

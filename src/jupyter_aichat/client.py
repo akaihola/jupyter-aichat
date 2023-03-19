@@ -4,7 +4,7 @@ from typing import Union, Iterable, NamedTuple
 import openai
 
 from jupyter_aichat.output import output
-from jupyter_aichat.authentication import _authenticate
+from jupyter_aichat.authentication import authenticate
 from jupyter_aichat.api_types import Message, PromptUsage, Request, Response
 from jupyter_aichat.schedule import Schedule
 from jupyter_aichat.tokens import num_tokens_from_messages
@@ -24,7 +24,7 @@ class Conversation:
         self.system_message_schedules: list[ScheduledMessage] = []
 
     def say_and_listen(self, text: str) -> None:
-        _authenticate()
+        authenticate()
         request_message: Message = {"role": "user", "content": text}
         prompt_tokens = num_tokens_from_messages([request_message])
         prompt: Request = {
