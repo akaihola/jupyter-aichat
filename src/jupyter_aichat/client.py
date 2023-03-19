@@ -123,6 +123,11 @@ class Conversation:
 
     @property
     def total_tokens(self) -> int:
+        """Return the total number of tokens the conversation corresponds to.
+
+        :return: The total number of tokens.
+
+        """
         if not self.transmissions:
             return 0
         return self.transmissions[-1]["usage"]["total_tokens"]

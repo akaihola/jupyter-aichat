@@ -17,7 +17,7 @@ class ConversationMagic(Magics):
     @line_cell_magic  # type: ignore[misc]
     def ai(self, line: str, cell: Optional[str] = None) -> Optional[Conversation]:
         text = line if cell is None else f"{line} {cell}"
-        if not text.strip():
+        if not text.strip():  # just `%ai` or `%%ai`
             output(self.templates["help"])
             self.conversation.register_system_message(
                 self.templates["help_assistant_system_message"],
@@ -25,9 +25,11 @@ class ConversationMagic(Magics):
                 skip_if_exists=True,
             )
             return None
+        # handle `%ai /<command> <params>` or `%%ai /command <params>`
         maybe_command, *params = text.split(None, 1)
         if maybe_command.startswith("/"):
             return self.handle_command(maybe_command, *params)
+        # not a help request or command, so it's a user message
         self.conversation.say_and_listen(text)
         return None
 
