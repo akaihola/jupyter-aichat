@@ -4,6 +4,7 @@ from IPython.core.magic import Magics, line_cell_magic, magics_class
 
 from jupyter_aichat.client import Conversation
 from jupyter_aichat.output import output, TemplateLoader
+from jupyter_aichat.schedule import parse_schedule, Schedule
 
 
 @magics_class
@@ -18,8 +19,9 @@ class ConversationMagic(Magics):
         text = line if cell is None else f"{line} {cell}"
         if not text.strip():
             output(self.templates["help"])
-            self.conversation.add_system_message(
+            self.conversation.register_system_message(
                 self.templates["help_assistant_system_message"],
+                Schedule([0], self.conversation.current_step),
                 skip_if_exists=True,
             )
             return None
@@ -33,7 +35,10 @@ class ConversationMagic(Magics):
         if command == "/restart":
             self.conversation = Conversation()
         elif command == "/system":
-            self.conversation.add_system_message(params)
+            schedule, system_message = (
+                parse_schedule(params, self.conversation.current_step)
+            )
+            self.conversation.register_system_message(system_message, schedule)
         elif command == "/get_object":
             return self.conversation
         elif command == "/history":
