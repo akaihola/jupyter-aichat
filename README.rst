@@ -65,3 +65,27 @@ generate an appropriate response based on the context of the conversation.
 That sounds like a great idea! Having a clear explanation of how the chat interface
 works and the technology it uses will help make it more accessible to potential users.
 Good luck with your project!
+
+
+Cool things to try
+==================
+
+- Install jupyterlab-markup_
+  and use the following system message::
+
+      %%ai /system schedule=[0,1,...]
+      You always answer with just one sentence and illustrate your point using a Mermaid diagram with vertical layout,
+      enclosed like this:
+      ```mermaid
+      (diagram goes here)
+      ```
+
+- Make the assistant change its behavior by scheduling system messages to be sent
+  at specific points of the conversation::
+
+      %%ai /system schedule=[0] You are a comedian.
+      %%ai /system schedule=[10] You are a nuclear physicist with poor social skills.
+      %%ai /system schedule=[20] You are a mother patiently explaining things to a 2-year-old.
+
+
+.. _jupyterlab-markup: https://pypi.org/project/jupyterlab-markup/
