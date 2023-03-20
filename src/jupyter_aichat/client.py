@@ -31,14 +31,12 @@ class Conversation:
 
     def say_and_listen(self, text: str) -> None:
         authenticate()
-        request_message: Message = {"role": "user", "content": text}
+        request_message = Message(role="user", content=text)
         prompt_tokens = num_tokens_from_messages([request_message])
-        prompt: Request = {
-            "choices": [{"message": request_message}],
-            "usage": {
-                "total_tokens": self.total_tokens + prompt_tokens,
-            },
-        }
+        prompt = Request(
+            choices=[{"message": request_message}],
+            usage={"total_tokens": self.total_tokens + prompt_tokens},
+        )
         self.add_scheduled_system_messages()
         self.transmissions.append(prompt)
         # https://platform.openai.com/docs/api-reference/chat/create
@@ -188,7 +186,7 @@ class Conversation:
                 continue
             total_tokens = self.total_tokens + num_tokens_from_messages([message])
             usage = PromptUsage(total_tokens=total_tokens)
-            request = Request(choices=[{"message": message}], usage=usage)
+            request = Request(choices=[Choice(message=message)], usage=usage)
             yield request
 
     def add_scheduled_system_messages(self) -> None:
