@@ -1,11 +1,17 @@
 from itertools import takewhile
-from typing import Union, Iterable, NamedTuple
+from typing import Iterable, NamedTuple, Union
 
 import openai
-
-from jupyter_aichat.output import output
+from jupyter_aichat.api_types import (
+    Choice,
+    CompletionUsage,
+    Message,
+    PromptUsage,
+    Request,
+    Response,
+)
 from jupyter_aichat.authentication import authenticate
-from jupyter_aichat.api_types import Message, PromptUsage, Request, Response
+from jupyter_aichat.output import SPINNER, output_updatable, update_output
 from jupyter_aichat.schedule import Schedule
 from jupyter_aichat.tokens import num_tokens_from_messages
 
@@ -36,14 +42,33 @@ class Conversation:
         self.add_scheduled_system_messages()
         self.transmissions.append(prompt)
         # https://platform.openai.com/docs/api-reference/chat/create
-        response = openai.ChatCompletion.create(  # type: ignore[no-untyped-call]
+        response_message = []
+        role = ""
+        display_handle = output_updatable(SPINNER)
+        for event in openai.ChatCompletion.create(  # type: ignore[no-untyped-call]
             model=self.MODEL,
             messages=self.get_messages(max_tokens=self.MAX_TOKENS),
+            stream=True,
+            timeout=5,
+        ):
+            delta = event["choices"][0]["delta"]
+            role, content = delta.get("role", role), delta.get("content")
+            if role != "assistant" or not content:
+                continue
+            response_message.append(content)
+            update_output(display_handle, "".join(response_message))
+        if not response_message:
+            return
+        message = Message(role="assistant", content="".join(response_message))
+        choice = Choice(message=message)
+        completion_tokens = num_tokens_from_messages([message])
+        usage = CompletionUsage(
+            prompt_tokens=0,
+            completion_tokens=completion_tokens,
+            total_tokens=prompt["usage"]["total_tokens"] + completion_tokens,
         )
-        prompt["usage"]["total_tokens"] = response.usage.prompt_tokens
-        self.transmissions.append(response.to_dict_recursive())
-        response_message = response["choices"][0]["message"]
-        output(response_message["content"].strip())
+        response = Response(choices=[choice], usage=usage)
+        self.transmissions.append(response)
 
     def get_transmissions(self, max_tokens: int) -> list[Union[Request, Response]]:
         """Return the transmissions that fit within the token budget.
