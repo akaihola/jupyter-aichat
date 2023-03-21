@@ -114,8 +114,10 @@ class Conversation:
         :return: The total number of tokens in the slice.
 
         """
-        if not self.transmissions:
+        if not self.transmissions or stop == start:
             return 0
+        if stop < start:
+            raise ValueError(f"stop ({stop}) must be greater than start ({start})")
         if start == 0:
             return self.transmissions[stop - 1]["usage"]["total_tokens"]
         return (
