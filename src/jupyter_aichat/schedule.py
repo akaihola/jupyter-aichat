@@ -1,13 +1,11 @@
 from ast import literal_eval
 from dataclasses import dataclass
+from io import StringIO
 from itertools import zip_longest
 from token import tok_name
-from types import EllipsisType
-from typing import Union, Self, SupportsInt, cast
-import re
-from io import StringIO
 from tokenize import generate_tokens, INDENT, NAME, OP, NUMBER
-
+from types import EllipsisType
+from typing import Union
 
 SchedulePattern = list[Union[int, EllipsisType]]
 
