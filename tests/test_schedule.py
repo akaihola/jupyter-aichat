@@ -5,6 +5,7 @@ from typing import Union, Optional
 import pytest
 
 from jupyter_aichat.schedule import Schedule, SchedulePattern, parse_schedule
+from tests.assertion import raises_or_matches
 
 
 @pytest.mark.kwparametrize(
@@ -89,9 +90,24 @@ def test_validate_pattern(pattern: list[Union[int, EllipsisType]], expect: str) 
         expression="No schedule at all for this message.",
         start=9,
         expect=(
-                Schedule(pattern=[0], start=9),
-                "No schedule at all for this message.",
+            Schedule(pattern=[0], start=9),
+            "No schedule at all for this message.",
         ),
+    ),
+    dict(
+        expression="schedule bla bla bla",
+        start=9,
+        expect=(Schedule(pattern=[0], start=9), "schedule bla bla bla"),
+    ),
+    dict(
+        expression="schedule= bla bla bla",
+        start=9,
+        expect=(Schedule(pattern=[0], start=9), "schedule= bla bla bla"),
+    ),
+    dict(
+        expression="schedule=[ bla bla",
+        start=9,
+        expect=ValueError("Unexpected NAME 'bla' at pos 11 in 'schedule=[ bla bla'."),
     ),
     start=0,
 )
@@ -99,6 +115,9 @@ def test_parse_schedule(
     expression: str, start: int, expect: tuple[Schedule, str]
 ) -> None:
     """Test `parse_schedule`."""
-    result = parse_schedule(expression, start)
+    with raises_or_matches(expect):
+        # end of test setup
 
-    assert result == expect
+        result = parse_schedule(expression, start)
+
+        assert result == expect

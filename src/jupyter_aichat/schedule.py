@@ -152,10 +152,12 @@ def parse_schedule(string: str, start: int) -> tuple[Schedule, str]:
             else:
                 action = grammar_strings[ANY]
         except KeyError as exc:
-            raise ValueError(
-                f"Unexpected {tok_name[token.type]} {token.string!r} at pos"
-                f" {token.start[1]} in {string!r}."
-            ) from exc
+            if state >= 4:
+                raise ValueError(
+                    f"Unexpected {tok_name[token.type]} {token.string!r} at pos"
+                    f" {token.start[1]} in {string!r}."
+                ) from exc
+            return Schedule(pattern, start), string
         if isinstance(action, Cancel):
             return Schedule([0], start), string[token.start[1] :]
         if isinstance(action, Goto):
