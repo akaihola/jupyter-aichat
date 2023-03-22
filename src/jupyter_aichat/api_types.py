@@ -1,37 +1,62 @@
-from typing import TypedDict
+from dataclasses import dataclass
+from typing import Optional
 
 
-class Message(TypedDict):
+@dataclass
+class Message:
     role: str
     content: str
+    name: Optional[str] = None
 
 
-class PromptUsage(TypedDict):
+@dataclass
+class Usage:
     total_tokens: int
 
 
-class CompletionUsage(TypedDict):
+@dataclass
+class PromptUsage(Usage):
+    pass
+
+
+@dataclass
+class CompletionUsage(Usage):
     prompt_tokens: int
     completion_tokens: int
-    total_tokens: int
 
 
-class Choice(TypedDict):
+@dataclass
+class Choice:
     message: Message
 
 
-class Transmission(TypedDict):
+@dataclass()
+class Transmission:
     choices: list[Choice]
+    usage: Usage
+
+    @property
+    def message(self) -> Message:
+        return self.choices[0].message
+
+    @property
+    def role(self) -> str:
+        return self.message.role
+
+    @property
+    def content(self) -> str:
+        return self.choices[0].message.content
+
+    @property
+    def total_tokens(self) -> int:
+        return self.usage.total_tokens
 
 
+@dataclass
 class Request(Transmission):
     usage: PromptUsage
 
 
-class ApiCompletionUsage:
-    prompt_tokens: int
-    completion_tokens: int
-
-
+@dataclass
 class Response(Transmission):
     usage: CompletionUsage

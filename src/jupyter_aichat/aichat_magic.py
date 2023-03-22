@@ -1,11 +1,11 @@
-from typing import Optional, Any
+from typing import Any, Optional
 
 from IPython.core.magic import Magics, line_cell_magic, magics_class
 
 from jupyter_aichat.authentication import save_api_key
 from jupyter_aichat.client import Conversation
-from jupyter_aichat.output import output, TemplateLoader
-from jupyter_aichat.schedule import parse_schedule, Schedule
+from jupyter_aichat.output import TemplateLoader, output
+from jupyter_aichat.schedule import Schedule, parse_schedule
 
 
 @magics_class
@@ -40,8 +40,8 @@ class ConversationMagic(Magics):
         elif command == "/save-key":
             save_api_key()
         elif command == "/system":
-            schedule, system_message = (
-                parse_schedule(params, self.conversation.current_step)
+            schedule, system_message = parse_schedule(
+                params, self.conversation.current_step
             )
             self.conversation.register_system_message(system_message, schedule)
         elif command == "/get_object":
@@ -56,7 +56,7 @@ class ConversationMagic(Magics):
             )
             output(
                 "\n\n".join(
-                    f"**{message['role']}:** {message['content'].strip()}"
+                    f"**{message.role}:** {message.content.strip()}"
                     for message in self.conversation.get_messages(*args)
                 )
             )

@@ -4,7 +4,7 @@ from typing import Optional
 
 import openai
 
-from jupyter_aichat.output import output, TemplateLoader
+from jupyter_aichat.output import TemplateLoader, output
 
 keyring: Optional[ModuleType]
 try:

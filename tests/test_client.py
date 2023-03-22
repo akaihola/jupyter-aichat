@@ -1,22 +1,22 @@
 import os
-from typing import Union, Type, Iterable
-from unittest.mock import patch, Mock, call
+from typing import Iterable, Type, Union
+from unittest.mock import Mock, call, patch
 
 import pytest
 
 from jupyter_aichat.api_types import (
-    Response,
-    Request,
     Choice,
+    CompletionUsage,
     Message,
     PromptUsage,
-    CompletionUsage,
+    Request,
+    Response,
 )
 from jupyter_aichat.client import (
-    is_system_prompt,
-    prompt_role_is,
     Conversation,
     ScheduledMessage,
+    is_system_prompt,
+    prompt_role_is,
 )
 from jupyter_aichat.schedule import Schedule, SchedulePattern
 from tests.assertion import raises_or_matches
@@ -557,23 +557,23 @@ def test_register_system_message() -> None:
 
     assert conversation.system_message_schedules == [
         ScheduledMessage(
-            message={"role": "system", "content": "You are a dog."},
+            message=Message(role="system", content="You are a dog."),
             schedule=Schedule(pattern=[1, 2, Ellipsis, 4], start=0),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "You are a dog."},
+            message=Message(role="system", content="You are a dog."),
             schedule=Schedule(pattern=[1, 2, Ellipsis, 4], start=0),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "You are a dog."},
+            message=Message(role="system", content="You are a dog."),
             schedule=Schedule(pattern=[6], start=0),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "You rock!"},
+            message=Message(role="system", content="You rock!"),
             schedule=Schedule(pattern=[1, 2, Ellipsis, 4], start=0),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "You rock!"},
+            message=Message(role="system", content="You rock!"),
             schedule=Schedule(pattern=[7], start=0),
         ),
     ]
@@ -583,42 +583,42 @@ def test_get_scheduled_system_messages() -> None:
     conversation = Conversation()
     conversation.system_message_schedules = [
         ScheduledMessage(
-            message={"role": "system", "content": "Always"},
+            message=Message(role="system", content="Always"),
             schedule=Schedule(pattern=[0, 1, Ellipsis, 9], start=0),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "Odd"},
+            message=Message(role="system", content="Odd"),
             schedule=Schedule(pattern=[1, 3, Ellipsis, 9], start=0),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "Even"},
+            message=Message(role="system", content="Even"),
             schedule=Schedule(pattern=[0, 2, Ellipsis, 8], start=0),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "Five"},
+            message=Message(role="system", content="Five"),
             schedule=Schedule(pattern=[5], start=0),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "Three, start from two"},
+            message=Message(role="system", content="Three, start from two"),
             schedule=Schedule(pattern=[3], start=2),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "Zero, start from five"},
+            message=Message(role="system", content="Zero, start from five"),
             schedule=Schedule(pattern=[3], start=2),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "Five, start from one"},
+            message=Message(role="system", content="Five, start from one"),
             schedule=Schedule(pattern=[5], start=1),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "One, start from five"},
+            message=Message(role="system", content="One, start from five"),
             schedule=Schedule(pattern=[1], start=5),
         ),
     ]
 
     result = conversation.get_scheduled_system_messages(5)
 
-    assert [request["choices"][0]["message"]["content"] for request in result] == [
+    assert [request.content for request in result] == [
         "Always",
         "Odd",
         "Five",
@@ -645,45 +645,42 @@ def test_add_scheduled_system_messages() -> None:
     ]
     conversation.system_message_schedules = [
         ScheduledMessage(
-            message={"role": "system", "content": "Always"},
+            message=Message(role="system", content="Always"),
             schedule=Schedule(pattern=[0, 1, Ellipsis, 9], start=0),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "Odd"},
+            message=Message(role="system", content="Odd"),
             schedule=Schedule(pattern=[1, 3, Ellipsis, 9], start=0),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "Even"},
+            message=Message(role="system", content="Even"),
             schedule=Schedule(pattern=[0, 2, Ellipsis, 8], start=0),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "Three"},
+            message=Message(role="system", content="Three"),
             schedule=Schedule(pattern=[3], start=0),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "Two, start from one"},
+            message=Message(role="system", content="Two, start from one"),
             schedule=Schedule(pattern=[2], start=1),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "Zero, start from three"},
+            message=Message(role="system", content="Zero, start from three"),
             schedule=Schedule(pattern=[0], start=3),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "Three, start from one"},
+            message=Message(role="system", content="Three, start from one"),
             schedule=Schedule(pattern=[3], start=1),
         ),
         ScheduledMessage(
-            message={"role": "system", "content": "One, start from three"},
+            message=Message(role="system", content="One, start from three"),
             schedule=Schedule(pattern=[1], start=3),
         ),
     ]
 
     conversation.add_scheduled_system_messages()
 
-    assert [
-        request["choices"][0]["message"]["content"]
-        for request in conversation.transmissions
-    ] == [
+    assert [request.content for request in conversation.transmissions] == [
         "1",
         "2",
         "3",

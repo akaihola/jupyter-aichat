@@ -1,6 +1,6 @@
 import re
 from types import EllipsisType
-from typing import Union, Optional
+from typing import Optional, Union
 
 import pytest
 

@@ -1,6 +1,6 @@
 import re
 from contextlib import nullcontext
-from typing import Union, Any, Type
+from typing import Any, Type, Union
 
 import pytest
 from _pytest.python_api import RaisesContext

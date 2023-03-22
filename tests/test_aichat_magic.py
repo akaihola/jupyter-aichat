@@ -1,17 +1,17 @@
 from typing import Union
-from unittest.mock import Mock, patch, DEFAULT
+from unittest.mock import DEFAULT, Mock, patch
 
 import pytest
 
 from jupyter_aichat import authentication
 from jupyter_aichat.aichat_magic import ConversationMagic
 from jupyter_aichat.api_types import (
-    Request,
     Choice,
+    CompletionUsage,
     Message,
     PromptUsage,
+    Request,
     Response,
-    CompletionUsage,
 )
 from jupyter_aichat.client import ScheduledMessage
 from jupyter_aichat.output import TemplateLoader, output
@@ -221,7 +221,7 @@ def test_handle_command_system(
 
     assert magic.conversation.system_message_schedules == [
         ScheduledMessage(
-            message={"role": "system", "content": expect_content},
+            message=Message(role="system", content=expect_content),
             schedule=Schedule(pattern=expect_pattern, start=expect_start),
         )
     ]

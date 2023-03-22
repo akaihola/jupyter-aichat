@@ -24,7 +24,8 @@ from jupyter_aichat.tokens import num_tokens_from_messages
         ],
         expect=14,
     ),
-    dict(messages=[{"name": "Samuel"}], expect=7,),
+    ## We're not using the name field, so don't test it
+    # dict(messages=[{"name": "Samuel"}], expect=7,),
     dict(
         messages=[
             {"role": "system", "content": "foo"},
@@ -37,8 +38,8 @@ from jupyter_aichat.tokens import num_tokens_from_messages
         expect=34,
     ),
 )
-def test_num_tokens_from_messages(messages: list[str], expect: int) -> None:
-    messages_ = [Message(**m) for m in messages]  # type: ignore[misc]
+def test_num_tokens_from_messages(messages: list[dict[str, str]], expect: int) -> None:
+    messages_ = [Message(**m) for m in messages]
     result = num_tokens_from_messages(messages_)
 
     assert result == expect

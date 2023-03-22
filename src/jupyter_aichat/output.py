@@ -3,7 +3,7 @@ from typing import cast
 
 import pkg_resources
 from IPython.core.display import Markdown, display_markdown
-from IPython.display import display, DisplayHandle
+from IPython.display import DisplayHandle, display
 
 
 def output(markdown_text: str) -> None:

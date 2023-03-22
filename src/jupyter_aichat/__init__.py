@@ -5,7 +5,7 @@ __version__ = "0.0.3"
 from IPython.core.interactiveshell import InteractiveShell
 
 from .aichat_magic import ConversationMagic
-from .output import output, TemplateLoader
+from .output import TemplateLoader, output
 
 
 def load_ipython_extension(ipython: InteractiveShell) -> None:

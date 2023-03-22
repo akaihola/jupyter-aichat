@@ -2,6 +2,7 @@ from itertools import takewhile
 from typing import Iterable, NamedTuple, Union
 
 import openai
+
 from jupyter_aichat.api_types import (
     Choice,
     CompletionUsage,
@@ -34,8 +35,8 @@ class Conversation:
         request_message = Message(role="user", content=text)
         prompt_tokens = num_tokens_from_messages([request_message])
         prompt = Request(
-            choices=[{"message": request_message}],
-            usage={"total_tokens": self.total_tokens + prompt_tokens},
+            choices=[Choice(message=request_message)],
+            usage=PromptUsage(total_tokens=self.total_tokens + prompt_tokens),
         )
         self.add_scheduled_system_messages()
         self.transmissions.append(prompt)
@@ -43,9 +44,13 @@ class Conversation:
         response_message = []
         role = ""
         display_handle = output_updatable(SPINNER)
+        payload = [
+            {"role": message.role, "content": message.content}
+            for message in self.get_messages(max_tokens=self.MAX_TOKENS)
+        ]
         for event in openai.ChatCompletion.create(  # type: ignore[no-untyped-call]
             model=self.MODEL,
-            messages=self.get_messages(max_tokens=self.MAX_TOKENS),
+            messages=payload,
             stream=True,
             timeout=5,
         ):
@@ -63,7 +68,7 @@ class Conversation:
         usage = CompletionUsage(
             prompt_tokens=0,
             completion_tokens=completion_tokens,
-            total_tokens=prompt["usage"]["total_tokens"] + completion_tokens,
+            total_tokens=prompt.total_tokens + completion_tokens,
         )
         response = Response(choices=[choice], usage=usage)
         self.transmissions.append(response)
@@ -104,7 +109,7 @@ class Conversation:
         if not system_prompts:
             return 0, 0
         last_system_prompt = system_prompts[-1]
-        return len(system_prompts), last_system_prompt["usage"]["total_tokens"]
+        return len(system_prompts), last_system_prompt.total_tokens
 
     def get_tokens_for_slice(self, start: int, stop: int) -> int:
         """Return the total number of tokens in the slice.
@@ -119,10 +124,10 @@ class Conversation:
         if stop < start:
             raise ValueError(f"stop ({stop}) must be greater than start ({start})")
         if start == 0:
-            return self.transmissions[stop - 1]["usage"]["total_tokens"]
+            return self.transmissions[stop - 1].total_tokens
         return (
-            self.transmissions[stop - 1]["usage"]["total_tokens"]
-            - self.transmissions[start - 1]["usage"]["total_tokens"]
+            self.transmissions[stop - 1].total_tokens
+            - self.transmissions[start - 1].total_tokens
         )
 
     def get_messages(self, max_tokens: int = 2**63 - 1) -> list[Message]:
@@ -133,8 +138,7 @@ class Conversation:
 
         """
         return [
-            transmission["choices"][0]["message"]
-            for transmission in self.get_transmissions(max_tokens)
+            transmission.message for transmission in self.get_transmissions(max_tokens)
         ]
 
     @property
@@ -155,7 +159,7 @@ class Conversation:
         """
         if not self.transmissions:
             return 0
-        return self.transmissions[-1]["usage"]["total_tokens"]
+        return self.transmissions[-1].total_tokens
 
     def register_system_message(
         self, content: str, schedule: Schedule, skip_if_exists: bool = False
@@ -168,8 +172,7 @@ class Conversation:
 
         """
         if skip_if_exists and any(
-            is_system_prompt(prompt)
-            and prompt["choices"][0]["message"]["content"] == content
+            is_system_prompt(prompt) and prompt.content == content
             for prompt in self.transmissions
         ):
             return
@@ -199,14 +202,12 @@ class Conversation:
 
         """
         new_system_prompts = list(self.get_scheduled_system_messages(self.current_step))
-        new_system_messages = [
-            prompt["choices"][0]["message"]["content"] for prompt in new_system_prompts
-        ]
+        new_system_messages = [prompt.content for prompt in new_system_prompts]
         self.transmissions = [
             xmission
             for xmission in self.transmissions
             if not prompt_role_is(xmission, "system")
-            or xmission["choices"][0]["message"]["content"] not in new_system_messages
+            or xmission.content not in new_system_messages
         ]
         self.transmissions.extend(new_system_prompts)
 
@@ -219,7 +220,7 @@ def prompt_role_is(prompt: Union[Request, Response], role: str) -> bool:
     :return: Whether the prompt sender has the given role.
 
     """
-    return prompt["choices"][0]["message"]["role"] == role
+    return prompt.role == role
 
 
 def is_system_prompt(prompt: Union[Request, Response]) -> bool:

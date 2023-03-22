@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from io import StringIO
 from itertools import zip_longest
 from token import tok_name
-from tokenize import generate_tokens, INDENT, NAME, OP, NUMBER
+from tokenize import INDENT, NAME, NUMBER, OP, generate_tokens
 from types import EllipsisType
 from typing import Union
 
