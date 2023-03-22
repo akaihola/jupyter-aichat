@@ -517,7 +517,7 @@ def test_register_system_message() -> None:
     ]
 
 
-def test_get_scheduled_system_messages():
+def test_get_scheduled_system_messages() -> None:
     conversation = Conversation()
     conversation.system_message_schedules = [
         ScheduledMessage(
@@ -565,7 +565,7 @@ def test_get_scheduled_system_messages():
     ]
 
 
-def test_add_scheduled_system_messages():
+def test_add_scheduled_system_messages() -> None:
     conversation = Conversation()
     conversation.transmissions = [
         Response(
