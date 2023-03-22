@@ -49,7 +49,9 @@ SPINNER = """
         <circle class="spinner_S1WN spinner_Km9P" cx="12" cy="12" r="3"/>
         <circle class="spinner_S1WN spinner_JApP" cx="20" cy="12" r="3"/>
       </svg>'>
-""".replace("\n", "").strip()
+""".replace(
+    "\n", ""
+).strip()
 
 
 class TemplateLoader:
