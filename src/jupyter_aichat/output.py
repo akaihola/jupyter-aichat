@@ -2,7 +2,8 @@ from string import Formatter
 from typing import cast
 
 import pkg_resources
-from IPython.display import display, Markdown, DisplayHandle, display_markdown
+from IPython.core.display import Markdown, display_markdown
+from IPython.display import display, DisplayHandle
 
 
 def output(markdown_text: str) -> None:
@@ -15,11 +16,15 @@ def output(markdown_text: str) -> None:
 
 
 def output_updatable(markdown_text: str) -> DisplayHandle:
-    return display(Markdown(markdown_text), display_id=True)
+    display_handle: DisplayHandle = display(  # type: ignore[no-untyped-call]
+        Markdown(markdown_text), display_id=True  # type: ignore[no-untyped-call]
+    )
+    return display_handle
 
 
 def update_output(display_handle: DisplayHandle, markdown_text: str) -> None:
-    display_handle.update(Markdown(markdown_text))
+    display_handle.update(Markdown(markdown_text))  # type: ignore[no-untyped-call]
+
 
 SPINNER = """
     <img src='data:image/svg+xml,
