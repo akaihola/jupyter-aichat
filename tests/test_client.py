@@ -668,32 +668,21 @@ def test_add_scheduled_system_messages() -> None:
 
 @pytest.mark.kwparametrize(
     dict(prompt=Request(), expect=IndexError),
+    dict(prompt=Response(), expect=IndexError),
     dict(
-        prompt=Response(),
-        expect=IndexError,
-    ),
-    dict(
-        prompt=Request(
-            choices=[Choice(message=Message(role="different_role"))],
-        ),
+        prompt=Request(choices=[Choice(message=Message(role="different_role"))]),
         expect=False,
     ),
     dict(
-        prompt=Response(
-            choices=[Choice(message=Message(role="different_role"))],
-        ),
+        prompt=Response(choices=[Choice(message=Message(role="different_role"))]),
         expect=False,
     ),
     dict(
-        prompt=Request(
-            choices=[Choice(message=Message(role="expected_role"))],
-        ),
+        prompt=Request(choices=[Choice(message=Message(role="expected_role"))]),
         expect=True,
     ),
     dict(
-        prompt=Response(
-            choices=[Choice(message=Message(role="expected_role"))],
-        ),
+        prompt=Response(choices=[Choice(message=Message(role="expected_role"))]),
         expect=True,
     ),
 )
@@ -714,30 +703,12 @@ def test_prompt_role_is(
     [
         (Request(), IndexError),
         (Response(), IndexError),
-        (
-            Request(choices=[Choice(message=Message(role="system"))]),
-            True,
-        ),
-        (
-            Response(choices=[Choice(message=Message(role="system"))]),
-            True,
-        ),
-        (
-            Request(choices=[Choice(message=Message(role="user"))]),
-            False,
-        ),
-        (
-            Response(choices=[Choice(message=Message(role="user"))]),
-            False,
-        ),
-        (
-            Request(choices=[Choice(message=Message(role="assistant"))]),
-            False,
-        ),
-        (
-            Response(choices=[Choice(message=Message(role="assistant"))]),
-            False,
-        ),
+        (Request(choices=[Choice(message=Message(role="system"))]), True),
+        (Response(choices=[Choice(message=Message(role="system"))]), True),
+        (Request(choices=[Choice(message=Message(role="user"))]), False),
+        (Response(choices=[Choice(message=Message(role="user"))]), False),
+        (Request(choices=[Choice(message=Message(role="assistant"))]), False),
+        (Response(choices=[Choice(message=Message(role="assistant"))]), False),
     ],
 )
 def test_is_system_prompt(
