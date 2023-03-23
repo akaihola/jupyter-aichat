@@ -6,7 +6,6 @@ import pytest
 from jupyter_aichat import authentication
 from jupyter_aichat.aichat_magic import ConversationMagic
 from jupyter_aichat.api_types import (
-    Choice,
     CompletionUsage,
     Message,
     PromptUsage,
@@ -122,9 +121,7 @@ def test_ai_with_prompt_calls_no_command_handler(magic: ConversationMagic) -> No
 def test_ai_doesnt_duplicate_system_message(magic: ConversationMagic) -> None:
     help_text = TemplateLoader()["help_assistant_system_message"]
     help_msg = Message(role="system", content=help_text)
-    initial_request = Request(
-        choices=[Choice(message=help_msg)], usage=PromptUsage(total_tokens=40)
-    )
+    initial_request = Request(message=help_msg, usage=PromptUsage(total_tokens=40))
     magic.conversation.transmissions = [initial_request]
 
     magic.ai("", None)
@@ -210,7 +207,7 @@ def test_handle_command_system(
 ) -> None:
     messages = [Message(role="assistant", content=content) for content in completions]
     magic.conversation.transmissions = [
-        Response(choices=[Choice(message=message)]) for message in messages
+        Response(message=message) for message in messages
     ]
 
     magic.handle_command("/system", params)
@@ -252,15 +249,15 @@ def test_handle_command_history(
 ) -> None:
     magic.conversation.transmissions = [
         Request(
-            choices=[Choice(message=Message(role="system", content="1"))],
+            message=Message(role="system", content="1"),
             usage=PromptUsage(total_tokens=48),
         ),
         Request(
-            choices=[Choice(message=Message(role="user", content="2"))],
+            message=Message(role="user", content="2"),
             usage=PromptUsage(total_tokens=4048),
         ),
         Response(
-            choices=[Choice(message=Message(role="assistant", content="3"))],
+            message=Message(role="assistant", content="3"),
             usage=CompletionUsage(completion_tokens=49, total_tokens=4097),
         ),
     ]

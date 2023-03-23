@@ -4,7 +4,6 @@ from typing import Iterable, NamedTuple, Union
 import openai
 
 from jupyter_aichat.api_types import (
-    Choice,
     CompletionUsage,
     Message,
     PromptUsage,
@@ -35,7 +34,7 @@ class Conversation:
         request_message = Message(role="user", content=text)
         prompt_tokens = num_tokens_from_messages([request_message])
         prompt = Request(
-            choices=[Choice(message=request_message)],
+            message=request_message,
             usage=PromptUsage(total_tokens=self.total_tokens + prompt_tokens),
         )
         self.add_scheduled_system_messages()
@@ -63,13 +62,12 @@ class Conversation:
         if not response_message:
             return
         message = Message(role="assistant", content="".join(response_message))
-        choice = Choice(message=message)
         completion_tokens = num_tokens_from_messages([message])
         usage = CompletionUsage(
             completion_tokens=completion_tokens,
             total_tokens=prompt.total_tokens + completion_tokens,
         )
-        response = Response(choices=[choice], usage=usage)
+        response = Response(message=message, usage=usage)
         self.transmissions.append(response)
 
     def get_transmissions(self, max_tokens: int) -> list[Union[Request, Response]]:
@@ -190,7 +188,7 @@ class Conversation:
                 continue
             total_tokens = self.total_tokens + num_tokens_from_messages([message])
             usage = PromptUsage(total_tokens=total_tokens)
-            request = Request(choices=[Choice(message=message)], usage=usage)
+            request = Request(message=message, usage=usage)
             yield request
 
     def add_scheduled_system_messages(self) -> None:

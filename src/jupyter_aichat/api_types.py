@@ -25,19 +25,10 @@ class CompletionUsage(Usage):
     completion_tokens: int = 0
 
 
-@dataclass
-class Choice:
-    message: Message
-
-
 @dataclass()
 class Transmission:
-    choices: list[Choice] = field(default_factory=list)
+    message: Message
     usage: Usage = field(default_factory=Usage)
-
-    @property
-    def message(self) -> Message:
-        return self.choices[0].message
 
     @property
     def role(self) -> str:
@@ -45,7 +36,7 @@ class Transmission:
 
     @property
     def content(self) -> str:
-        return self.choices[0].message.content
+        return self.message.content
 
     @property
     def total_tokens(self) -> int:
