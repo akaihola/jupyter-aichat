@@ -66,7 +66,6 @@ class Conversation:
         choice = Choice(message=message)
         completion_tokens = num_tokens_from_messages([message])
         usage = CompletionUsage(
-            prompt_tokens=0,
             completion_tokens=completion_tokens,
             total_tokens=prompt.total_tokens + completion_tokens,
         )

@@ -96,9 +96,7 @@ def test_say_and_listen_calls_api(
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="Here!"))],
-            usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=40, total_tokens=110
-            ),
+            usage=CompletionUsage(completion_tokens=40, total_tokens=110),
         ),
     ]
     with patch("jupyter_aichat.client.openai") as openai:
@@ -179,9 +177,7 @@ def test_say_and_listen_records_transmissions(update_output: Mock) -> None:
                     )
                 )
             ],
-            usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=17, total_tokens=26
-            ),
+            usage=CompletionUsage(completion_tokens=17, total_tokens=26),
         ),
     ]
 
@@ -241,9 +237,7 @@ def test_get_transmissions(max_tokens: int, expect: list[int]) -> None:
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="Hello World"))],
-            usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=20, total_tokens=70
-            ),
+            usage=CompletionUsage(completion_tokens=20, total_tokens=70),
         ),
     ]
     with raises_or_matches(expect):
@@ -275,9 +269,7 @@ def test_get_initial_system_messages() -> None:
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="No!"))],
-            usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=10, total_tokens=90
-            ),
+            usage=CompletionUsage(completion_tokens=10, total_tokens=90),
         ),
     ]
 
@@ -295,9 +287,7 @@ def test_get_initial_system_messages_none_exist() -> None:
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="No!"))],
-            usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=10, total_tokens=90
-            ),
+            usage=CompletionUsage(completion_tokens=10, total_tokens=90),
         ),
     ]
 
@@ -361,9 +351,7 @@ def test_get_tokens_for_slice(start: int, stop: int, expect: int) -> None:
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="No way!"))],
-            usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=20, total_tokens=90
-            ),
+            usage=CompletionUsage(completion_tokens=20, total_tokens=90),
         ),
     ]
     with raises_or_matches(expect):
@@ -428,9 +416,7 @@ def test_get_messages(max_tokens: int, expect: list[tuple[str, str]]) -> None:
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="Hello World"))],
-            usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=20, total_tokens=70
-            ),
+            usage=CompletionUsage(completion_tokens=20, total_tokens=70),
         ),
     ]
     with raises_or_matches(expect):
@@ -452,9 +438,7 @@ def test_current_step() -> None:
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="How to help?"))],
-            usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=30, total_tokens=70
-            ),
+            usage=CompletionUsage(completion_tokens=30, total_tokens=70),
         ),
         Request(
             choices=[Choice(message=Message(role="user", content="Please!"))],
@@ -462,9 +446,7 @@ def test_current_step() -> None:
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="Here you go."))],
-            usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=30, total_tokens=110
-            ),
+            usage=CompletionUsage(completion_tokens=30, total_tokens=110),
         ),
         Request(
             choices=[Choice(message=Message(role="user", content="Thanks."))],
@@ -472,9 +454,7 @@ def test_current_step() -> None:
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="Not at all."))],
-            usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=30, total_tokens=150
-            ),
+            usage=CompletionUsage(completion_tokens=30, total_tokens=150),
         ),
     ]
 
@@ -496,9 +476,7 @@ def test_total_tokens() -> None:
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="How to help?"))],
-            usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=30, total_tokens=70
-            ),
+            usage=CompletionUsage(completion_tokens=30, total_tokens=70),
         ),
         Request(
             choices=[Choice(message=Message(role="user", content="Please!"))],
@@ -506,9 +484,7 @@ def test_total_tokens() -> None:
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="Here you go."))],
-            usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=30, total_tokens=110
-            ),
+            usage=CompletionUsage(completion_tokens=30, total_tokens=110),
         ),
         Request(
             choices=[Choice(message=Message(role="user", content="Thanks."))],
@@ -516,9 +492,7 @@ def test_total_tokens() -> None:
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="Not at all."))],
-            usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=30, total_tokens=150
-            ),
+            usage=CompletionUsage(completion_tokens=30, total_tokens=150),
         ),
     ]
 
@@ -632,15 +606,15 @@ def test_add_scheduled_system_messages() -> None:
     conversation.transmissions = [
         Response(
             choices=[Choice(message=Message(role="assistant", content="1"))],
-            usage=CompletionUsage(prompt_tokens=0, completion_tokens=1, total_tokens=1),
+            usage=CompletionUsage(completion_tokens=1, total_tokens=1),
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="2"))],
-            usage=CompletionUsage(prompt_tokens=0, completion_tokens=1, total_tokens=2),
+            usage=CompletionUsage(completion_tokens=1, total_tokens=2),
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="3"))],
-            usage=CompletionUsage(prompt_tokens=0, completion_tokens=1, total_tokens=3),
+            usage=CompletionUsage(completion_tokens=1, total_tokens=3),
         ),
     ]
     conversation.system_message_schedules = [
@@ -693,41 +667,39 @@ def test_add_scheduled_system_messages() -> None:
 
 
 @pytest.mark.kwparametrize(
-    dict(
-        prompt=Request(choices=[], usage=PromptUsage(total_tokens=0)), expect=IndexError
-    ),
+    dict(prompt=Request(choices=[], usage=PromptUsage()), expect=IndexError),
     dict(
         prompt=Response(
             choices=[],
-            usage=CompletionUsage(prompt_tokens=0, completion_tokens=0, total_tokens=0),
+            usage=CompletionUsage(),
         ),
         expect=IndexError,
     ),
     dict(
         prompt=Request(
             choices=[Choice(message=Message(role="different_role", content=""))],
-            usage=PromptUsage(total_tokens=0),
+            usage=PromptUsage(),
         ),
         expect=False,
     ),
     dict(
         prompt=Response(
             choices=[Choice(message=Message(role="different_role", content=""))],
-            usage=CompletionUsage(prompt_tokens=0, completion_tokens=0, total_tokens=0),
+            usage=CompletionUsage(),
         ),
         expect=False,
     ),
     dict(
         prompt=Request(
             choices=[Choice(message=Message(role="expected_role", content=""))],
-            usage=PromptUsage(total_tokens=0),
+            usage=PromptUsage(),
         ),
         expect=True,
     ),
     dict(
         prompt=Response(
             choices=[Choice(message=Message(role="expected_role", content=""))],
-            usage=CompletionUsage(prompt_tokens=0, completion_tokens=0, total_tokens=0),
+            usage=CompletionUsage(),
         ),
         expect=True,
     ),
@@ -747,61 +719,53 @@ def test_prompt_role_is(
 @pytest.mark.parametrize(
     "prompt, expect",
     [
-        (Request(choices=[], usage=PromptUsage(total_tokens=0)), IndexError),
+        (Request(choices=[], usage=PromptUsage()), IndexError),
         (
             Response(
                 choices=[],
-                usage=CompletionUsage(
-                    prompt_tokens=0, completion_tokens=0, total_tokens=0
-                ),
+                usage=CompletionUsage(),
             ),
             IndexError,
         ),
         (
             Request(
                 choices=[Choice(message=Message(role="system", content=""))],
-                usage=PromptUsage(total_tokens=0),
+                usage=PromptUsage(),
             ),
             True,
         ),
         (
             Response(
                 choices=[Choice(message=Message(role="system", content=""))],
-                usage=CompletionUsage(
-                    prompt_tokens=0, completion_tokens=0, total_tokens=0
-                ),
+                usage=CompletionUsage(),
             ),
             True,
         ),
         (
             Request(
                 choices=[Choice(message=Message(role="user", content=""))],
-                usage=PromptUsage(total_tokens=0),
+                usage=PromptUsage(),
             ),
             False,
         ),
         (
             Response(
                 choices=[Choice(message=Message(role="user", content=""))],
-                usage=CompletionUsage(
-                    prompt_tokens=0, completion_tokens=0, total_tokens=0
-                ),
+                usage=CompletionUsage(),
             ),
             False,
         ),
         (
             Request(
                 choices=[Choice(message=Message(role="assistant", content=""))],
-                usage=PromptUsage(total_tokens=0),
+                usage=PromptUsage(),
             ),
             False,
         ),
         (
             Response(
                 choices=[Choice(message=Message(role="assistant", content=""))],
-                usage=CompletionUsage(
-                    prompt_tokens=0, completion_tokens=0, total_tokens=0
-                ),
+                usage=CompletionUsage(),
             ),
             False,
         ),

@@ -11,7 +11,7 @@ class Message:
 
 @dataclass
 class Usage:
-    total_tokens: int
+    total_tokens: int = 0
 
 
 @dataclass
@@ -21,8 +21,8 @@ class PromptUsage(Usage):
 
 @dataclass
 class CompletionUsage(Usage):
-    prompt_tokens: int
-    completion_tokens: int
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
 
 
 @dataclass

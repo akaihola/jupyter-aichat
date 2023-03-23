@@ -212,7 +212,7 @@ def test_handle_command_system(
     magic.conversation.transmissions = [
         Response(
             choices=[Choice(message=message)],
-            usage=CompletionUsage(prompt_tokens=0, completion_tokens=0, total_tokens=0),
+            usage=CompletionUsage(),
         )
         for message in messages
     ]
@@ -265,9 +265,7 @@ def test_handle_command_history(
         ),
         Response(
             choices=[Choice(message=Message(role="assistant", content="3"))],
-            usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=49, total_tokens=4097
-            ),
+            usage=CompletionUsage(completion_tokens=49, total_tokens=4097),
         ),
     ]
     with raises_or_matches(expect):
