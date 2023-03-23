@@ -667,9 +667,9 @@ def test_add_scheduled_system_messages() -> None:
 
 
 @pytest.mark.kwparametrize(
-    dict(prompt=Request(choices=[]), expect=IndexError),
+    dict(prompt=Request(), expect=IndexError),
     dict(
-        prompt=Response(choices=[]),
+        prompt=Response(),
         expect=IndexError,
     ),
     dict(
@@ -712,8 +712,8 @@ def test_prompt_role_is(
 @pytest.mark.parametrize(
     "prompt, expect",
     [
-        (Request(choices=[]), IndexError),
-        (Response(choices=[]), IndexError),
+        (Request(), IndexError),
+        (Response(), IndexError),
         (
             Request(choices=[Choice(message=Message(role="system", content=""))]),
             True,

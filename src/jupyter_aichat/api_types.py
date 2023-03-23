@@ -32,7 +32,7 @@ class Choice:
 
 @dataclass()
 class Transmission:
-    choices: list[Choice]
+    choices: list[Choice] = field(default_factory=list)
     usage: Usage = field(default_factory=Usage)
 
     @property
