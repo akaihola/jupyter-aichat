@@ -1,0 +1,66 @@
+interactions:
+- request:
+    body: '{"model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": "Hi!"}],
+      "stream": true}'
+    headers:
+      Content-Type:
+      - application/json
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"chatcmpl-6x9E7XMunb36q0AhOFXvNbRALuGSM","object":"chat.completion.chunk","created":1679554839,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"role":"assistant"},"index":0,"finish_reason":null}]}
+
+
+        data: {"id":"chatcmpl-6x9E7XMunb36q0AhOFXvNbRALuGSM","object":"chat.completion.chunk","created":1679554839,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"\n\n"},"index":0,"finish_reason":null}]}
+
+
+        data: {"id":"chatcmpl-6x9E7XMunb36q0AhOFXvNbRALuGSM","object":"chat.completion.chunk","created":1679554839,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"Hello"},"index":0,"finish_reason":null}]}
+
+
+        data: {"id":"chatcmpl-6x9E7XMunb36q0AhOFXvNbRALuGSM","object":"chat.completion.chunk","created":1679554839,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"!"},"index":0,"finish_reason":null}]}
+
+
+        data: {"id":"chatcmpl-6x9E7XMunb36q0AhOFXvNbRALuGSM","object":"chat.completion.chunk","created":1679554839,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"
+        How"},"index":0,"finish_reason":null}]}
+
+
+        data: {"id":"chatcmpl-6x9E7XMunb36q0AhOFXvNbRALuGSM","object":"chat.completion.chunk","created":1679554839,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"
+        can"},"index":0,"finish_reason":null}]}
+
+
+        data: {"id":"chatcmpl-6x9E7XMunb36q0AhOFXvNbRALuGSM","object":"chat.completion.chunk","created":1679554839,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"
+        I"},"index":0,"finish_reason":null}]}
+
+
+        data: {"id":"chatcmpl-6x9E7XMunb36q0AhOFXvNbRALuGSM","object":"chat.completion.chunk","created":1679554839,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"
+        assist"},"index":0,"finish_reason":null}]}
+
+
+        data: {"id":"chatcmpl-6x9E7XMunb36q0AhOFXvNbRALuGSM","object":"chat.completion.chunk","created":1679554839,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"
+        you"},"index":0,"finish_reason":null}]}
+
+
+        data: {"id":"chatcmpl-6x9E7XMunb36q0AhOFXvNbRALuGSM","object":"chat.completion.chunk","created":1679554839,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"
+        today"},"index":0,"finish_reason":null}]}
+
+
+        data: {"id":"chatcmpl-6x9E7XMunb36q0AhOFXvNbRALuGSM","object":"chat.completion.chunk","created":1679554839,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"?"},"index":0,"finish_reason":null}]}
+
+
+        data: {"id":"chatcmpl-6x9E7XMunb36q0AhOFXvNbRALuGSM","object":"chat.completion.chunk","created":1679554839,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{},"index":0,"finish_reason":"stop"}]}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      Content-Type:
+      - text/event-stream
+      Openai-Model:
+      - gpt-3.5-turbo-0301
+    status:
+      code: 200
+      message: OK
+version: 1

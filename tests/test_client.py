@@ -1,3 +1,4 @@
+import os
 from typing import Union, Type, Iterable
 from unittest.mock import patch, Mock, call
 
@@ -80,6 +81,43 @@ def test_say_and_listen_authenticates(
     assert authenticate.called
 
 
+def test_say_and_listen_calls_api(
+    authenticate: Mock, chat_completion: Mock, update_output: Mock
+) -> None:
+    conversation = Conversation()
+    conversation.transmissions = [
+        Request(
+            choices=[Choice(message=Message(role="system", content="Shout!"))],
+            usage=PromptUsage(total_tokens=50),
+        ),
+        Request(
+            choices=[Choice(message=Message(role="user", content="Hi!"))],
+            usage=PromptUsage(total_tokens=70),
+        ),
+        Response(
+            choices=[Choice(message=Message(role="assistant", content="Here!"))],
+            usage=CompletionUsage(
+                prompt_tokens=0, completion_tokens=40, total_tokens=110
+            ),
+        ),
+    ]
+    with patch("jupyter_aichat.client.openai") as openai:
+
+        conversation.say_and_listen("Hello World")
+
+    openai.ChatCompletion.create.assert_called_once_with(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "Shout!"},
+            {"role": "user", "content": "Hi!"},
+            {"role": "assistant", "content": "Here!"},
+            {"role": "user", "content": "Hello World"},
+        ],
+        stream=True,
+        timeout=5,
+    )
+
+
 def test_say_and_listen_outputs_completion(
     authenticate: Mock, chat_completion: Mock, update_output: Mock
 ) -> None:
@@ -103,10 +141,27 @@ def test_say_and_listen_doesnt_output_empty(
     assert not update_output.called
 
 
-def test_say_and_listen_records_transmissions(
-    authenticate: Mock, chat_completion: Mock, update_output: Mock
-) -> None:
+@pytest.mark.vcr
+def test_say_and_listen_records_transmissions(update_output: Mock) -> None:
+    r"""ChatGPT response is stored in `Conversation.transmissions`.
+
+    This test uses ``pytest-recording`` to record the actual API response.
+
+    To re-record the cassette:
+
+    - set the ``OPENAI_API_KEY`` environment variable to a valid OpenAI API key
+    - delete the file
+      ``tests/cassettes/test_client/test_say_and_listen_records_transmissions.yaml``
+    - run::
+
+          pytest --record-mode=once \
+            tests/test_client.py \
+            -k test_say_and_listen_records_transmissions
+
+    """
     conversation = Conversation()
+    with patch("jupyter_aichat.authentication.getpass") as getpass:
+        getpass.return_value = os.environ.get("OPENAI_API_KEY", "sk-dummy API key")
 
     conversation.say_and_listen("Hi!")
 
@@ -116,9 +171,16 @@ def test_say_and_listen_records_transmissions(
             usage=PromptUsage(total_tokens=9),
         ),
         Response(
-            choices=[Choice(message=Message(role="assistant", content="Hello World"))],
+            choices=[
+                Choice(
+                    message=Message(
+                        role="assistant",
+                        content="\n\nHello! How can I assist you today?",
+                    )
+                )
+            ],
             usage=CompletionUsage(
-                prompt_tokens=0, completion_tokens=9, total_tokens=18
+                prompt_tokens=0, completion_tokens=17, total_tokens=26
             ),
         ),
     ]

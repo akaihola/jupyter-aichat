@@ -13,6 +13,7 @@ dependencies = ["IPython", "openai", "setuptools", "tiktoken"]
 test = [
     "pytest",
     "pytest-kwparametrize",
+    "pytest-recording",
     "types-setuptools",
 ]
 
