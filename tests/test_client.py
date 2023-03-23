@@ -667,39 +667,32 @@ def test_add_scheduled_system_messages() -> None:
 
 
 @pytest.mark.kwparametrize(
-    dict(prompt=Request(choices=[], usage=PromptUsage()), expect=IndexError),
+    dict(prompt=Request(choices=[]), expect=IndexError),
     dict(
-        prompt=Response(
-            choices=[],
-            usage=CompletionUsage(),
-        ),
+        prompt=Response(choices=[]),
         expect=IndexError,
     ),
     dict(
         prompt=Request(
             choices=[Choice(message=Message(role="different_role", content=""))],
-            usage=PromptUsage(),
         ),
         expect=False,
     ),
     dict(
         prompt=Response(
             choices=[Choice(message=Message(role="different_role", content=""))],
-            usage=CompletionUsage(),
         ),
         expect=False,
     ),
     dict(
         prompt=Request(
             choices=[Choice(message=Message(role="expected_role", content=""))],
-            usage=PromptUsage(),
         ),
         expect=True,
     ),
     dict(
         prompt=Response(
             choices=[Choice(message=Message(role="expected_role", content=""))],
-            usage=CompletionUsage(),
         ),
         expect=True,
     ),
@@ -719,54 +712,30 @@ def test_prompt_role_is(
 @pytest.mark.parametrize(
     "prompt, expect",
     [
-        (Request(choices=[], usage=PromptUsage()), IndexError),
+        (Request(choices=[]), IndexError),
+        (Response(choices=[]), IndexError),
         (
-            Response(
-                choices=[],
-                usage=CompletionUsage(),
-            ),
-            IndexError,
-        ),
-        (
-            Request(
-                choices=[Choice(message=Message(role="system", content=""))],
-                usage=PromptUsage(),
-            ),
+            Request(choices=[Choice(message=Message(role="system", content=""))]),
             True,
         ),
         (
-            Response(
-                choices=[Choice(message=Message(role="system", content=""))],
-                usage=CompletionUsage(),
-            ),
+            Response(choices=[Choice(message=Message(role="system", content=""))]),
             True,
         ),
         (
-            Request(
-                choices=[Choice(message=Message(role="user", content=""))],
-                usage=PromptUsage(),
-            ),
+            Request(choices=[Choice(message=Message(role="user", content=""))]),
             False,
         ),
         (
-            Response(
-                choices=[Choice(message=Message(role="user", content=""))],
-                usage=CompletionUsage(),
-            ),
+            Response(choices=[Choice(message=Message(role="user", content=""))]),
             False,
         ),
         (
-            Request(
-                choices=[Choice(message=Message(role="assistant", content=""))],
-                usage=PromptUsage(),
-            ),
+            Request(choices=[Choice(message=Message(role="assistant", content=""))]),
             False,
         ),
         (
-            Response(
-                choices=[Choice(message=Message(role="assistant", content=""))],
-                usage=CompletionUsage(),
-            ),
+            Response(choices=[Choice(message=Message(role="assistant", content=""))]),
             False,
         ),
     ],

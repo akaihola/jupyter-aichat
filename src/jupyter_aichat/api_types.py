@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 
@@ -33,7 +33,7 @@ class Choice:
 @dataclass()
 class Transmission:
     choices: list[Choice]
-    usage: Usage
+    usage: Usage = field(default_factory=Usage)
 
     @property
     def message(self) -> Message:
@@ -54,9 +54,9 @@ class Transmission:
 
 @dataclass
 class Request(Transmission):
-    usage: PromptUsage
+    usage: PromptUsage = field(default_factory=PromptUsage)
 
 
 @dataclass
 class Response(Transmission):
-    usage: CompletionUsage
+    usage: CompletionUsage = field(default_factory=CompletionUsage)

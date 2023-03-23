@@ -210,11 +210,7 @@ def test_handle_command_system(
 ) -> None:
     messages = [Message(role="assistant", content=content) for content in completions]
     magic.conversation.transmissions = [
-        Response(
-            choices=[Choice(message=message)],
-            usage=CompletionUsage(),
-        )
-        for message in messages
+        Response(choices=[Choice(message=message)]) for message in messages
     ]
 
     magic.handle_command("/system", params)
