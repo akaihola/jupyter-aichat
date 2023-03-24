@@ -5,12 +5,7 @@ import pytest
 
 from jupyter_aichat import authentication
 from jupyter_aichat.aichat_magic import ConversationMagic
-from jupyter_aichat.api_types import (
-    Message,
-    Request,
-    Response,
-    Usage,
-)
+from jupyter_aichat.api_types import Message, Request, Response
 from jupyter_aichat.client import ScheduledMessage
 from jupyter_aichat.output import TemplateLoader, output
 from jupyter_aichat.schedule import Schedule, SchedulePattern
@@ -120,7 +115,7 @@ def test_ai_with_prompt_calls_no_command_handler(magic: ConversationMagic) -> No
 def test_ai_doesnt_duplicate_system_message(magic: ConversationMagic) -> None:
     help_text = TemplateLoader()["help_assistant_system_message"]
     help_msg = Message(role="system", content=help_text)
-    initial_request = Request(message=help_msg, usage=Usage(total_tokens=40))
+    initial_request = Request(message=help_msg, total_tokens=40)
     magic.conversation.transmissions = [initial_request]
 
     magic.ai("", None)
@@ -249,15 +244,15 @@ def test_handle_command_history(
     magic.conversation.transmissions = [
         Request(
             message=Message(role="system", content="1"),
-            usage=Usage(total_tokens=48),
+            total_tokens=48,
         ),
         Request(
             message=Message(role="user", content="2"),
-            usage=Usage(total_tokens=4048),
+            total_tokens=4048,
         ),
         Response(
             message=Message(role="assistant", content="3"),
-            usage=Usage(total_tokens=4097),
+            total_tokens=4097,
         ),
     ]
     with raises_or_matches(expect):

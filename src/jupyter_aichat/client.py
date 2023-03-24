@@ -3,12 +3,7 @@ from typing import Iterable, NamedTuple, Union
 
 import openai
 
-from jupyter_aichat.api_types import (
-    Message,
-    Request,
-    Response,
-    Usage,
-)
+from jupyter_aichat.api_types import Message, Request, Response
 from jupyter_aichat.authentication import authenticate
 from jupyter_aichat.output import SPINNER, output_updatable, update_output
 from jupyter_aichat.schedule import Schedule
@@ -34,7 +29,7 @@ class Conversation:
         prompt_tokens = num_tokens_from_messages([request_message])
         prompt = Request(
             message=request_message,
-            usage=Usage(total_tokens=self.total_tokens + prompt_tokens),
+            total_tokens=self.total_tokens + prompt_tokens,
         )
         self.add_scheduled_system_messages()
         self.transmissions.append(prompt)
@@ -62,8 +57,9 @@ class Conversation:
             return
         message = Message(role="assistant", content="".join(response_message))
         completion_tokens = num_tokens_from_messages([message])
-        usage = Usage(total_tokens=prompt.total_tokens + completion_tokens)
-        response = Response(message=message, usage=usage)
+        response = Response(
+            message=message, total_tokens=prompt.total_tokens + completion_tokens
+        )
         self.transmissions.append(response)
 
     def get_transmissions(self, max_tokens: int) -> list[Union[Request, Response]]:
@@ -183,8 +179,7 @@ class Conversation:
             if not schedule.should_send(step):
                 continue
             total_tokens = self.total_tokens + num_tokens_from_messages([message])
-            usage = Usage(total_tokens=total_tokens)
-            request = Request(message=message, usage=usage)
+            request = Request(message=message, total_tokens=total_tokens)
             yield request
 
     def add_scheduled_system_messages(self) -> None:

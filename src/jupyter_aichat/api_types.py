@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 
@@ -9,15 +9,10 @@ class Message:
     name: Optional[str] = None
 
 
-@dataclass
-class Usage:
-    total_tokens: int = 0
-
-
 @dataclass()
 class Transmission:
     message: Message
-    usage: Usage = field(default_factory=Usage)
+    total_tokens: int = 0
 
     @property
     def role(self) -> str:
@@ -27,16 +22,12 @@ class Transmission:
     def content(self) -> str:
         return self.message.content
 
-    @property
-    def total_tokens(self) -> int:
-        return self.usage.total_tokens
-
 
 @dataclass
 class Request(Transmission):
-    usage: Usage = field(default_factory=Usage)
+    pass
 
 
 @dataclass
 class Response(Transmission):
-    usage: Usage = field(default_factory=Usage)
+    pass

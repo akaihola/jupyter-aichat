@@ -4,12 +4,7 @@ from unittest.mock import Mock, call, patch
 
 import pytest
 
-from jupyter_aichat.api_types import (
-    Message,
-    Request,
-    Response,
-    Usage,
-)
+from jupyter_aichat.api_types import Message, Request, Response
 from jupyter_aichat.client import (
     Conversation,
     ScheduledMessage,
@@ -86,15 +81,15 @@ def test_say_and_listen_calls_api(
     conversation.transmissions = [
         Request(
             message=Message(role="system", content="Shout!"),
-            usage=Usage(total_tokens=50),
+            total_tokens=50,
         ),
         Request(
             message=Message(role="user", content="Hi!"),
-            usage=Usage(total_tokens=70),
+            total_tokens=70,
         ),
         Response(
             message=Message(role="assistant", content="Here!"),
-            usage=Usage(total_tokens=110),
+            total_tokens=110,
         ),
     ]
     with patch("jupyter_aichat.client.openai") as openai:
@@ -164,14 +159,14 @@ def test_say_and_listen_records_transmissions(update_output: Mock) -> None:
     assert conversation.transmissions == [
         Request(
             message=Message(role="user", content="Hi!"),
-            usage=Usage(total_tokens=9),
+            total_tokens=9,
         ),
         Response(
             message=Message(
                 role="assistant",
                 content="\n\nHello! How can I assist you today?",
             ),
-            usage=Usage(total_tokens=26),
+            total_tokens=26,
         ),
     ]
 
@@ -186,7 +181,7 @@ def test_say_and_listen_doesnt_record_empty(
     assert conversation.transmissions == [
         Request(
             message=Message(role="user", content="Hi!"),
-            usage=Usage(total_tokens=9),
+            total_tokens=9,
         ),
     ]
 
@@ -223,15 +218,15 @@ def test_get_transmissions(max_tokens: int, expect: list[int]) -> None:
     conversation.transmissions = [
         Request(
             message=Message(role="system", content="You are a dog."),
-            usage=Usage(total_tokens=40),
+            total_tokens=40,
         ),
         Request(
             message=Message(role="user", content="Hi!"),
-            usage=Usage(total_tokens=50),
+            total_tokens=50,
         ),
         Response(
             message=Message(role="assistant", content="Hello World"),
-            usage=Usage(total_tokens=70),
+            total_tokens=70,
         ),
     ]
     with raises_or_matches(expect):
@@ -247,23 +242,23 @@ def test_get_initial_system_messages() -> None:
     conversation.transmissions = [
         Request(
             message=Message(role="system", content="You are a dog."),
-            usage=Usage(total_tokens=40),
+            total_tokens=40,
         ),
         Request(
             message=Message(role="system", content="Shout!"),
-            usage=Usage(total_tokens=50),
+            total_tokens=50,
         ),
         Request(
             message=Message(role="user", content="Hi!"),
-            usage=Usage(total_tokens=60),
+            total_tokens=60,
         ),
         Request(
             message=Message(role="system", content="Argue!"),
-            usage=Usage(total_tokens=70),
+            total_tokens=70,
         ),
         Response(
             message=Message(role="assistant", content="No!"),
-            usage=Usage(total_tokens=90),
+            total_tokens=90,
         ),
     ]
 
@@ -277,11 +272,11 @@ def test_get_initial_system_messages_none_exist() -> None:
     conversation.transmissions = [
         Request(
             message=Message(role="user", content="Hi!"),
-            usage=Usage(total_tokens=60),
+            total_tokens=60,
         ),
         Response(
             message=Message(role="assistant", content="No!"),
-            usage=Usage(total_tokens=90),
+            total_tokens=90,
         ),
     ]
 
@@ -329,23 +324,23 @@ def test_get_tokens_for_slice(start: int, stop: int, expect: int) -> None:
     conversation.transmissions = [
         Request(
             message=Message(role="system", content="You are a dog."),
-            usage=Usage(total_tokens=40),
+            total_tokens=40,
         ),
         Request(
             message=Message(role="system", content="Shout!"),
-            usage=Usage(total_tokens=50),
+            total_tokens=50,
         ),
         Request(
             message=Message(role="user", content="Hi!"),
-            usage=Usage(total_tokens=60),
+            total_tokens=60,
         ),
         Request(
             message=Message(role="system", content="Argue!"),
-            usage=Usage(total_tokens=70),
+            total_tokens=70,
         ),
         Response(
             message=Message(role="assistant", content="No way!"),
-            usage=Usage(total_tokens=90),
+            total_tokens=90,
         ),
     ]
     with raises_or_matches(expect):
@@ -402,15 +397,15 @@ def test_get_messages(max_tokens: int, expect: list[tuple[str, str]]) -> None:
     conversation.transmissions = [
         Request(
             message=Message(role="system", content="You are a dog."),
-            usage=Usage(total_tokens=40),
+            total_tokens=40,
         ),
         Request(
             message=Message(role="user", content="Hi!"),
-            usage=Usage(total_tokens=50),
+            total_tokens=50,
         ),
         Response(
             message=Message(role="assistant", content="Hello World"),
-            usage=Usage(total_tokens=70),
+            total_tokens=70,
         ),
     ]
     with raises_or_matches(expect):
@@ -428,27 +423,27 @@ def test_current_step() -> None:
     conversation.transmissions = [
         Request(
             message=Message(role="system", content="You are a dog."),
-            usage=Usage(total_tokens=40),
+            total_tokens=40,
         ),
         Response(
             message=Message(role="assistant", content="How to help?"),
-            usage=Usage(total_tokens=70),
+            total_tokens=70,
         ),
         Request(
             message=Message(role="user", content="Please!"),
-            usage=Usage(total_tokens=80),
+            total_tokens=80,
         ),
         Response(
             message=Message(role="assistant", content="Here you go."),
-            usage=Usage(total_tokens=110),
+            total_tokens=110,
         ),
         Request(
             message=Message(role="user", content="Thanks."),
-            usage=Usage(total_tokens=120),
+            total_tokens=120,
         ),
         Response(
             message=Message(role="assistant", content="Not at all."),
-            usage=Usage(total_tokens=150),
+            total_tokens=150,
         ),
     ]
 
@@ -466,27 +461,27 @@ def test_total_tokens() -> None:
     conversation.transmissions = [
         Request(
             message=Message(role="system", content="You are a dog."),
-            usage=Usage(total_tokens=40),
+            total_tokens=40,
         ),
         Response(
             message=Message(role="assistant", content="How to help?"),
-            usage=Usage(total_tokens=70),
+            total_tokens=70,
         ),
         Request(
             message=Message(role="user", content="Please!"),
-            usage=Usage(total_tokens=80),
+            total_tokens=80,
         ),
         Response(
             message=Message(role="assistant", content="Here you go."),
-            usage=Usage(total_tokens=110),
+            total_tokens=110,
         ),
         Request(
             message=Message(role="user", content="Thanks."),
-            usage=Usage(total_tokens=120),
+            total_tokens=120,
         ),
         Response(
             message=Message(role="assistant", content="Not at all."),
-            usage=Usage(total_tokens=150),
+            total_tokens=150,
         ),
     ]
 
@@ -498,7 +493,7 @@ def test_register_system_message() -> None:
     conversation.transmissions = [
         Request(
             message=Message(role="system", content="You are a dog."),
-            usage=Usage(total_tokens=40),
+            total_tokens=40,
         ),
     ]
     conversation.register_system_message(
@@ -600,15 +595,15 @@ def test_add_scheduled_system_messages() -> None:
     conversation.transmissions = [
         Response(
             message=Message(role="assistant", content="1"),
-            usage=Usage(total_tokens=1),
+            total_tokens=1,
         ),
         Response(
             message=Message(role="assistant", content="2"),
-            usage=Usage(total_tokens=2),
+            total_tokens=2,
         ),
         Response(
             message=Message(role="assistant", content="3"),
-            usage=Usage(total_tokens=3),
+            total_tokens=3,
         ),
     ]
     conversation.system_message_schedules = [
