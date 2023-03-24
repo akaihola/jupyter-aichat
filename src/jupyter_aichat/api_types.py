@@ -21,13 +21,3 @@ class Transmission:
     @property
     def content(self) -> str:
         return self.message.content
-
-
-@dataclass
-class Request(Transmission):
-    pass
-
-
-@dataclass
-class Response(Transmission):
-    pass

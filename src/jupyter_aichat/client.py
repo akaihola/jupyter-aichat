@@ -1,9 +1,9 @@
 from itertools import takewhile
-from typing import Iterable, NamedTuple, Union
+from typing import Iterable, NamedTuple
 
 import openai
 
-from jupyter_aichat.api_types import Message, Request, Response
+from jupyter_aichat.api_types import Message, Transmission
 from jupyter_aichat.authentication import authenticate
 from jupyter_aichat.output import SPINNER, output_updatable, update_output
 from jupyter_aichat.schedule import Schedule
@@ -20,14 +20,14 @@ class Conversation:
     MODEL = "gpt-3.5-turbo"
 
     def __init__(self) -> None:
-        self.transmissions: list[Union[Request, Response]] = []
+        self.transmissions: list[Transmission] = []
         self.system_message_schedules: list[ScheduledMessage] = []
 
     def say_and_listen(self, text: str) -> None:
         authenticate()
         request_message = Message(role="user", content=text)
         prompt_tokens = num_tokens_from_messages([request_message])
-        prompt = Request(
+        prompt = Transmission(
             message=request_message,
             total_tokens=self.total_tokens + prompt_tokens,
         )
@@ -57,12 +57,12 @@ class Conversation:
             return
         message = Message(role="assistant", content="".join(response_message))
         completion_tokens = num_tokens_from_messages([message])
-        response = Response(
+        response = Transmission(
             message=message, total_tokens=prompt.total_tokens + completion_tokens
         )
         self.transmissions.append(response)
 
-    def get_transmissions(self, max_tokens: int) -> list[Union[Request, Response]]:
+    def get_transmissions(self, max_tokens: int) -> list[Transmission]:
         """Return the transmissions that fit within the token budget.
 
         :param max_tokens: The maximum number of tokens to use.
@@ -168,7 +168,7 @@ class Conversation:
         message = Message(role="system", content=content)
         self.system_message_schedules.append(ScheduledMessage(message, schedule))
 
-    def get_scheduled_system_messages(self, step: int) -> Iterable[Request]:
+    def get_scheduled_system_messages(self, step: int) -> Iterable[Transmission]:
         """Return all any system messages that should be sent at the given step.
 
         :param step: The number of a step of the conversation.
@@ -179,7 +179,7 @@ class Conversation:
             if not schedule.should_send(step):
                 continue
             total_tokens = self.total_tokens + num_tokens_from_messages([message])
-            request = Request(message=message, total_tokens=total_tokens)
+            request = Transmission(message=message, total_tokens=total_tokens)
             yield request
 
     def add_scheduled_system_messages(self) -> None:
@@ -200,7 +200,7 @@ class Conversation:
         self.transmissions.extend(new_system_prompts)
 
 
-def prompt_role_is(prompt: Union[Request, Response], role: str) -> bool:
+def prompt_role_is(prompt: Transmission, role: str) -> bool:
     """Return whether the role of the prompt sender matches the given role.
 
     :param prompt: The prompt.
@@ -211,7 +211,7 @@ def prompt_role_is(prompt: Union[Request, Response], role: str) -> bool:
     return prompt.role == role
 
 
-def is_system_prompt(prompt: Union[Request, Response]) -> bool:
+def is_system_prompt(prompt: Transmission) -> bool:
     """Return whether the prompt is a system prompt.
 
     :param prompt: The prompt.

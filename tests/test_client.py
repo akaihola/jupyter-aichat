@@ -4,7 +4,7 @@ from unittest.mock import Mock, call, patch
 
 import pytest
 
-from jupyter_aichat.api_types import Message, Request, Response
+from jupyter_aichat.api_types import Message, Transmission
 from jupyter_aichat.client import (
     Conversation,
     ScheduledMessage,
@@ -79,15 +79,15 @@ def test_say_and_listen_calls_api(
 ) -> None:
     conversation = Conversation()
     conversation.transmissions = [
-        Request(
+        Transmission(
             message=Message(role="system", content="Shout!"),
             total_tokens=50,
         ),
-        Request(
+        Transmission(
             message=Message(role="user", content="Hi!"),
             total_tokens=70,
         ),
-        Response(
+        Transmission(
             message=Message(role="assistant", content="Here!"),
             total_tokens=110,
         ),
@@ -157,11 +157,11 @@ def test_say_and_listen_records_transmissions(update_output: Mock) -> None:
     conversation.say_and_listen("Hi!")
 
     assert conversation.transmissions == [
-        Request(
+        Transmission(
             message=Message(role="user", content="Hi!"),
             total_tokens=9,
         ),
-        Response(
+        Transmission(
             message=Message(
                 role="assistant",
                 content="\n\nHello! How can I assist you today?",
@@ -179,7 +179,7 @@ def test_say_and_listen_doesnt_record_empty(
     conversation.say_and_listen("Hi!")
 
     assert conversation.transmissions == [
-        Request(
+        Transmission(
             message=Message(role="user", content="Hi!"),
             total_tokens=9,
         ),
@@ -216,15 +216,15 @@ def test_say_and_listen_doesnt_record_empty(
 def test_get_transmissions(max_tokens: int, expect: list[int]) -> None:
     conversation = Conversation()
     conversation.transmissions = [
-        Request(
+        Transmission(
             message=Message(role="system", content="You are a dog."),
             total_tokens=40,
         ),
-        Request(
+        Transmission(
             message=Message(role="user", content="Hi!"),
             total_tokens=50,
         ),
-        Response(
+        Transmission(
             message=Message(role="assistant", content="Hello World"),
             total_tokens=70,
         ),
@@ -240,23 +240,23 @@ def test_get_transmissions(max_tokens: int, expect: list[int]) -> None:
 def test_get_initial_system_messages() -> None:
     conversation = Conversation()
     conversation.transmissions = [
-        Request(
+        Transmission(
             message=Message(role="system", content="You are a dog."),
             total_tokens=40,
         ),
-        Request(
+        Transmission(
             message=Message(role="system", content="Shout!"),
             total_tokens=50,
         ),
-        Request(
+        Transmission(
             message=Message(role="user", content="Hi!"),
             total_tokens=60,
         ),
-        Request(
+        Transmission(
             message=Message(role="system", content="Argue!"),
             total_tokens=70,
         ),
-        Response(
+        Transmission(
             message=Message(role="assistant", content="No!"),
             total_tokens=90,
         ),
@@ -270,11 +270,11 @@ def test_get_initial_system_messages() -> None:
 def test_get_initial_system_messages_none_exist() -> None:
     conversation = Conversation()
     conversation.transmissions = [
-        Request(
+        Transmission(
             message=Message(role="user", content="Hi!"),
             total_tokens=60,
         ),
-        Response(
+        Transmission(
             message=Message(role="assistant", content="No!"),
             total_tokens=90,
         ),
@@ -322,23 +322,23 @@ def test_get_initial_system_messages_none_exist() -> None:
 def test_get_tokens_for_slice(start: int, stop: int, expect: int) -> None:
     conversation = Conversation()
     conversation.transmissions = [
-        Request(
+        Transmission(
             message=Message(role="system", content="You are a dog."),
             total_tokens=40,
         ),
-        Request(
+        Transmission(
             message=Message(role="system", content="Shout!"),
             total_tokens=50,
         ),
-        Request(
+        Transmission(
             message=Message(role="user", content="Hi!"),
             total_tokens=60,
         ),
-        Request(
+        Transmission(
             message=Message(role="system", content="Argue!"),
             total_tokens=70,
         ),
-        Response(
+        Transmission(
             message=Message(role="assistant", content="No way!"),
             total_tokens=90,
         ),
@@ -395,15 +395,15 @@ def test_get_tokens_for_slice(start: int, stop: int, expect: int) -> None:
 def test_get_messages(max_tokens: int, expect: list[tuple[str, str]]) -> None:
     conversation = Conversation()
     conversation.transmissions = [
-        Request(
+        Transmission(
             message=Message(role="system", content="You are a dog."),
             total_tokens=40,
         ),
-        Request(
+        Transmission(
             message=Message(role="user", content="Hi!"),
             total_tokens=50,
         ),
-        Response(
+        Transmission(
             message=Message(role="assistant", content="Hello World"),
             total_tokens=70,
         ),
@@ -421,27 +421,27 @@ def test_get_messages(max_tokens: int, expect: list[tuple[str, str]]) -> None:
 def test_current_step() -> None:
     conversation = Conversation()
     conversation.transmissions = [
-        Request(
+        Transmission(
             message=Message(role="system", content="You are a dog."),
             total_tokens=40,
         ),
-        Response(
+        Transmission(
             message=Message(role="assistant", content="How to help?"),
             total_tokens=70,
         ),
-        Request(
+        Transmission(
             message=Message(role="user", content="Please!"),
             total_tokens=80,
         ),
-        Response(
+        Transmission(
             message=Message(role="assistant", content="Here you go."),
             total_tokens=110,
         ),
-        Request(
+        Transmission(
             message=Message(role="user", content="Thanks."),
             total_tokens=120,
         ),
-        Response(
+        Transmission(
             message=Message(role="assistant", content="Not at all."),
             total_tokens=150,
         ),
@@ -459,27 +459,27 @@ def test_total_tokens_empty() -> None:
 def test_total_tokens() -> None:
     conversation = Conversation()
     conversation.transmissions = [
-        Request(
+        Transmission(
             message=Message(role="system", content="You are a dog."),
             total_tokens=40,
         ),
-        Response(
+        Transmission(
             message=Message(role="assistant", content="How to help?"),
             total_tokens=70,
         ),
-        Request(
+        Transmission(
             message=Message(role="user", content="Please!"),
             total_tokens=80,
         ),
-        Response(
+        Transmission(
             message=Message(role="assistant", content="Here you go."),
             total_tokens=110,
         ),
-        Request(
+        Transmission(
             message=Message(role="user", content="Thanks."),
             total_tokens=120,
         ),
-        Response(
+        Transmission(
             message=Message(role="assistant", content="Not at all."),
             total_tokens=150,
         ),
@@ -491,7 +491,7 @@ def test_total_tokens() -> None:
 def test_register_system_message() -> None:
     conversation = Conversation()
     conversation.transmissions = [
-        Request(
+        Transmission(
             message=Message(role="system", content="You are a dog."),
             total_tokens=40,
         ),
@@ -593,15 +593,15 @@ def test_get_scheduled_system_messages() -> None:
 def test_add_scheduled_system_messages() -> None:
     conversation = Conversation()
     conversation.transmissions = [
-        Response(
+        Transmission(
             message=Message(role="assistant", content="1"),
             total_tokens=1,
         ),
-        Response(
+        Transmission(
             message=Message(role="assistant", content="2"),
             total_tokens=2,
         ),
-        Response(
+        Transmission(
             message=Message(role="assistant", content="3"),
             total_tokens=3,
         ),
@@ -656,13 +656,13 @@ def test_add_scheduled_system_messages() -> None:
 
 
 @pytest.mark.kwparametrize(
-    dict(prompt=Request(message=Message(role="different_role")), expect=False),
-    dict(prompt=Response(message=Message(role="different_role")), expect=False),
-    dict(prompt=Request(message=Message(role="expected_role")), expect=True),
-    dict(prompt=Response(message=Message(role="expected_role")), expect=True),
+    dict(prompt=Transmission(message=Message(role="different_role")), expect=False),
+    dict(prompt=Transmission(message=Message(role="different_role")), expect=False),
+    dict(prompt=Transmission(message=Message(role="expected_role")), expect=True),
+    dict(prompt=Transmission(message=Message(role="expected_role")), expect=True),
 )
 def test_prompt_role_is(
-    prompt: Union[Request, Response],
+    prompt: Transmission,
     expect: Union[bool, Type[BaseException]],
 ) -> None:
     with raises_or_matches(expect):
@@ -676,16 +676,16 @@ def test_prompt_role_is(
 @pytest.mark.parametrize(
     "prompt, expect",
     [
-        (Request(message=Message(role="system")), True),
-        (Response(message=Message(role="system")), True),
-        (Request(message=Message(role="user")), False),
-        (Response(message=Message(role="user")), False),
-        (Request(message=Message(role="assistant")), False),
-        (Response(message=Message(role="assistant")), False),
+        (Transmission(message=Message(role="system")), True),
+        (Transmission(message=Message(role="system")), True),
+        (Transmission(message=Message(role="user")), False),
+        (Transmission(message=Message(role="user")), False),
+        (Transmission(message=Message(role="assistant")), False),
+        (Transmission(message=Message(role="assistant")), False),
     ],
 )
 def test_is_system_prompt(
-    prompt: Union[Request, Response], expect: Union[bool, Type[BaseException]]
+    prompt: Transmission, expect: Union[bool, Type[BaseException]]
 ) -> None:
     with raises_or_matches(expect):
         # end of test setup
