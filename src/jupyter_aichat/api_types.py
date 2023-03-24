@@ -14,17 +14,6 @@ class Usage:
     total_tokens: int = 0
 
 
-@dataclass
-class PromptUsage(Usage):
-    pass
-
-
-@dataclass
-class CompletionUsage(Usage):
-    prompt_tokens: int = 0
-    completion_tokens: int = 0
-
-
 @dataclass()
 class Transmission:
     message: Message
@@ -45,9 +34,9 @@ class Transmission:
 
 @dataclass
 class Request(Transmission):
-    usage: PromptUsage = field(default_factory=PromptUsage)
+    usage: Usage = field(default_factory=Usage)
 
 
 @dataclass
 class Response(Transmission):
-    usage: CompletionUsage = field(default_factory=CompletionUsage)
+    usage: Usage = field(default_factory=Usage)
