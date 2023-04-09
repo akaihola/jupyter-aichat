@@ -23,6 +23,10 @@ def output_updatable(markdown_text: str) -> DisplayHandle:
 
 
 def update_output(display_handle: DisplayHandle, markdown_text: str) -> None:
+    if markdown_text.startswith("http"):
+        # Markdown rendering fails for some reason if the text starts with the letters
+        # "http". This is a workaround.
+        markdown_text = f" {markdown_text}"
     display_handle.update(Markdown(markdown_text))  # type: ignore[no-untyped-call]
 
 
